@@ -1,0 +1,178 @@
+import maya.cmds as cmds
+import maya.api.OpenMaya as om
+import maya.OpenMaya as om2
+
+maya_useNewAPI = True
+
+def targetObj(*args):
+    selection = cmds.ls(sl=True)
+    return [str(obj) for obj in selection]
+
+def selVertices(*args):
+    selectedObj = cmds.ls(selection=True, flatten=True)
+    if not selectedObj:
+        return []  
+    return selectedObj
+
+def fn_mesh(name):
+    sel_list = om.MSelectionList()
+    sel_list.add(name)
+    dag_path = sel_list.getDagPath(0)
+    fn_mesh = om.MFnMesh(dag_path)
+    return fn_mesh
+
+def pos_dir(source, ray_count):
+    sel = om2.MSelectionList()
+    om2.MGlobal.getActiveSelectionList(sel)
+    
+    dag = om2.MDagPath()
+    component = om2.MObject()
+    sel.getDagPath(0, dag, component)
+    if not component.isNull():
+        vert_itr = om2.MItMeshVertex(dag, component)
+        ray_float_point_array = []
+        while not vert_itr.isDone():
+            position = vert_itr.position(om2.MSpace.kWorld)
+            vectorPos = (position.x, position.y, position.z)
+            ray_float_point_array.append(vectorPos)
+            vert_itr.next()
+    return ray_float_point_array
+    
+def intersections(newTarget, source, ray_count, remVts, direction):
+    fn_mesh_target = fn_mesh(newTarget)
+    arrays = pos_dir(source, ray_count)
+    ray_float_point_array = arrays
+    k_space = om.MSpace.kWorld
+    testBothDirections = False
+    k_tolerance = 0.001
+    maxParam = 999999  
+    gen_list_inter = om.MPointArray()
+    vertDict = {}
+    for i in range(ray_count):
+        tempRaySource = ray_float_point_array[i]
+        raySource = om.MFloatPoint(tempRaySource[0], tempRaySource[1], tempRaySource[2])
+        vtx = remVts[i]
+        world_position = cmds.pointPosition(vtx, world=True)
+        rayDir_list = cmds.polyNormalPerVertex(vtx, query=True, xyz=True)
+        rayDir = om.MFloatVector(rayDir_list[0], rayDir_list[1], rayDir_list[2])  # Convert to MFloatVector
+
+        print(rayDir)
+
+        hit = fn_mesh_target.closestIntersection(raySource,
+                                                 rayDir,
+                                                 k_space,
+                                                 maxParam,
+                                                 testBothDirections,
+                                                 tolerance=k_tolerance)
+        if hit and hit[0]:
+            hit_point, hit_ray_param, hit_face, hit_triangle, hit_bary_1, hit_bary_2 = hit
+            gen_list_inter.append(hit_point)
+            position = (hit_point.x, hit_point.y, hit_point.z)
+            vertDict[str(vtx)] = position  
+    return gen_list_inter, vertDict
+
+def move_vertices(gen_list_inter, vertDict, ray_count, source):
+    for vtx, position in vertDict.items():
+        cmds.select(vtx)
+        if position != (0.0, 0.0, 0.0):
+            cmds.xform(vtx, ws=True, t=position, puv=True) 
+            
+def color_vertices(gen_list_inter, vertDict, ray_count, source):
+    for vtx, position in vertDict.items():
+        cmds.select(vtx)
+        if position != (0.0, 0.0, 0.0):
+            mel.eval('expandPolyGroupSelection; polyColorPerVertex -r 1 -g 0 -b 0 -a 1 -cdo;')
+
+def setDirNorm(calcDir):
+    return om.MFloatVector(calcDir[0][0], calcDir[0][1], calcDir[0][2])
+
+def up():
+    return om.MFloatVector(0,1,0)
+    
+def down():
+    return om.MFloatVector(0,-1,0)    
+
+def general(targetObj, ray_count, direction):
+    source = "source"
+    newTarget = targetObj[0]
+    remVts = setVariables0()
+    gen_list_inter, vertDict = intersections(newTarget, source, ray_count, remVts, direction)
+    color_vertices(gen_list_inter, vertDict, ray_count, source)
+
+def setVariables0():
+    remVts = selVertices()
+    return(remVts)
+
+def setVariables1():
+    target_obj = targetObj()
+    remVts = setVariables0()
+    rays = len(remVts)
+    calcDir = normalDir(remVts)
+    return rays, direction, calcDir
+
+def set_up_direction_button(*args):
+    global direction
+    direction = up()
+    cmds.confirmDialog(title="Up Direction", message="Up Direction Set.")
+    
+def set_down_direction_button(*args):
+    global direction
+    direction = down()
+    cmds.confirmDialog(title="Down Direction", message="Down Direction Set.")
+    
+def on_target_obj_button(*args):
+    global target_obj
+    target_obj = targetObj()
+    cmds.confirmDialog(title="Target Object", message="Target Object selected.")
+    
+def on_set_selected_vertices_button(*args):
+    global remVts
+    remVts = setVariables0()
+    cmds.confirmDialog(title="Remember Vertex Select", message="Vertices selected.")
+
+def on_general_button(*args):
+    if len(target_obj) < 1:
+        cmds.warning("Please Select A Target Object")
+    else:
+        remVts = setVariables0()
+        if not remVts:  # Check if remVts is an empty list
+            cmds.warning("Please Select Vertices To Ray To Target")
+        else: 
+            rays, direction, calcDir = setVariables1()
+            general(target_obj, rays, direction)
+            cmds.confirmDialog(title="Operation Complete", message="General function executed.")
+
+def create_window():
+    window_name = "myWindow44"
+    
+    # Delete the window if it already exists
+    if cmds.window(window_name, exists=True):
+        cmds.deleteUI(window_name)
+    
+    window = cmds.window(window_name, title="Ray Vertices To Target", widthHeight=(300, 400))
+    cmds.columnLayout(adjustableColumn=True, rowSpacing=10)
+    
+    cmds.text(label="Project Vertices to Target", align="center", font="boldLabelFont", backgroundColor=(0.7, 0.7, 0.7))
+    cmds.button(label="Select Target Object", command=on_target_obj_button, backgroundColor=(0.6, 0.8, 0.6))
+    
+    # Insert a separator and a label
+    cmds.separator(height=10)
+    cmds.text(label="Set Vertices To Ray", align="center", font="boldLabelFont", backgroundColor=(0.7, 0.7, 0.7))
+    
+    cmds.button(label="Select and Set/Reset Vertices", command=on_set_selected_vertices_button, backgroundColor=(0.6, 0.8, 0.6))
+    
+    # Insert a separator and a label
+    cmds.separator(height=10)
+    cmds.text(label="Set Direction : Pick 1", align="center", font="boldLabelFont", backgroundColor=(0.7, 0.7, 0.7))
+    
+    cmds.button(label="Set Up Direction", command=set_up_direction_button, backgroundColor=(1.0, 0.7, 0.3))
+    cmds.button(label="Set Down Direction", command=set_down_direction_button, backgroundColor=(1.0, 0.7, 0.3))
+    
+    # Insert a separator and a label
+    cmds.separator(height=10)
+    cmds.text(label="Project The Vertices", align="center", font="boldLabelFont", backgroundColor=(0.7, 0.7, 0.7))
+    cmds.button(label="Run General Function", command=on_general_button, backgroundColor=(0.4, 0.6, 0.8))
+    
+    cmds.showWindow(window)
+
+create_window()
