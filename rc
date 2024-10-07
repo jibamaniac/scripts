@@ -38,7 +38,7 @@ def pos_dir(source, ray_count):
             vert_itr.next()
     return ray_float_point_array
     
-def intersections(newTarget, source, ray_count, remVts, direction):
+def intersections(newTarget, source, ray_count, remVts, direction, distance_limit):
     fn_mesh_target = fn_mesh(newTarget)
     arrays = pos_dir(source, ray_count)
     ray_float_point_array = arrays
@@ -48,6 +48,7 @@ def intersections(newTarget, source, ray_count, remVts, direction):
     maxParam = 999999  
     gen_list_inter = om.MPointArray()
     vertDict = {}
+    
     for i in range(ray_count):
         tempRaySource = ray_float_point_array[i]
         raySource = om.MFloatPoint(tempRaySource[0], tempRaySource[1], tempRaySource[2])
@@ -55,8 +56,6 @@ def intersections(newTarget, source, ray_count, remVts, direction):
         world_position = cmds.pointPosition(vtx, world=True)
         rayDir_list = cmds.polyNormalPerVertex(vtx, query=True, xyz=True)
         rayDir = om.MFloatVector(rayDir_list[0], rayDir_list[1], rayDir_list[2])  # Convert to MFloatVector
-
-        print(rayDir)
 
         hit = fn_mesh_target.closestIntersection(raySource,
                                                  rayDir,
@@ -66,10 +65,16 @@ def intersections(newTarget, source, ray_count, remVts, direction):
                                                  tolerance=k_tolerance)
         if hit and hit[0]:
             hit_point, hit_ray_param, hit_face, hit_triangle, hit_bary_1, hit_bary_2 = hit
-            gen_list_inter.append(hit_point)
-            position = (hit_point.x, hit_point.y, hit_point.z)
-            vertDict[str(vtx)] = position  
+            
+            # Calculate distance from ray source to hit point
+            distance = (hit_point - raySource).length()
+            if distance < distance_limit:  # Check against the distance limit
+                gen_list_inter.append(hit_point)
+                position = (hit_point.x, hit_point.y, hit_point.z)
+                vertDict[str(vtx)] = position  
+    
     return gen_list_inter, vertDict
+
 
 def move_vertices(gen_list_inter, vertDict, ray_count, source):
     for vtx, position in vertDict.items():
@@ -96,7 +101,7 @@ def general(targetObj, ray_count, direction):
     source = "source"
     newTarget = targetObj[0]
     remVts = setVariables0()
-    gen_list_inter, vertDict = intersections(newTarget, source, ray_count, remVts, direction)
+    gen_list_inter, vertDict = intersections(newTarget, source, ray_count, remVts, direction, 0.5)
     color_vertices(gen_list_inter, vertDict, ray_count, source)
 
 def setVariables0():
