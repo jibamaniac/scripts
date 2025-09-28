@@ -1,0 +1,256 @@
+//create skydome in fresh scene with global lights matching skydome color.
+//initiate settings on temp cube
+polyCube;
+setAttr "pCube1.visibility" 0;
+addAttr -ln "numbLightsSqrd"  -at long  -dv 0 |pCube1;
+setAttr "pCube1.numbLightsSqrd" 10;
+addAttr -ln "lightScale"  -at long  -dv 0 |pCube1;
+setAttr "pCube1.lightScale" 1;
+addAttr -ln "skyScalar"  -at double  -dv 0 |pCube1;
+setAttr "pCube1.skyScalar" 1;
+addAttr -ln "lightIntensity"  -at double  -dv 0 |pCube1;
+setAttr "pCube1.lightIntensity" 1;
+
+int $span = `getAttr "pCube1.numbLightsSqrd"`;
+HypershadeWindow;
+updateModelPanelBar MayaWindow|formLayout1|viewPanes|modelPanel4|modelPanel4|modelPanel4;
+dR_setModelEditorTypes;
+
+//delet window if exists
+if ( `window -exists myWindow` )
+deleteUI -window myWindow;
+
+// ------- Button Functions -------
+global proc func() {
+
+int $span = `getAttr "pCube1.numbLightsSqrd"`;
+
+polySphere -r 1 -sx ($span) -sy ($span) -ax 0 1 0 -cuv 2 -ch 1;
+polySphere -r 1 -sx (20) -sy (20) -ax 0 1 0 -cuv 2 -ch 1;
+setAttr "pSphere1.visibility" 0;
+
+
+select -cl;
+select -r pSphere2 ;
+rename sky;
+select -cl;
+shadingNode -asShader surfaceShader;
+   }
+   global proc func9() {
+defaultNavigation -createNew -destination "surfaceShader1.outColor";
+createRenderNode -allWithTexturesUp "defaultNavigation -force true -connectToExisting -source %node -destination surfaceShader1.outColor" "";
+defaultNavigation -defaultTraversal -destination "surfaceShader1.outColor";
+shadingNode -asTexture -isColorManaged file;
+}
+global proc func10() {
+    AEfileTextureBrowser "AEassignTextureCB  file2.fileTextureName" "file2" image;
+    }
+
+global proc func11() {
+shadingNode -asShader surfaceShader;
+
+select -r sky ;
+
+hyperShade -assign surfaceShader1;
+
+    
+}
+
+global proc func1() {
+select pSphere1;
+artAttrColorPerVertexToolScript 3;
+artImportMapDialog "artAttrPaintVertexCtx";
+np_getPrimaryProjectFileRules 0;
+select -cl;
+}
+
+
+global proc func2() { 
+
+select -r pSphere1 ;
+scale -ws -r 20 20. 20. ;
+makeIdentity -apply true -t 1 -r 1 -s 1 -n 0 -pn 1;
+expression -s "pSphere1.scaleX = pCube1.skyScalar;"  -o pSphere1 -ae 1 -uc all ;
+expression -s "pSphere1.scaleY = pCube1.skyScalar;"  -o pSphere1 -ae 1 -uc all ;
+expression -s "pSphere1.scaleZ = pCube1.skyScalar;"  -o pSphere1 -ae 1 -uc all ;
+
+select -r sky ;
+scale -ws -r 20 20. 20. ;
+makeIdentity -apply true -t 1 -r 1 -s 1 -n 0 -pn 1;
+expression -s "sky.scaleX = pCube1.skyScalar;"  -o sky -ae 1 -uc all ;
+expression -s "sky.scaleY = pCube1.skyScalar;"  -o sky -ae 1 -uc all ;
+expression -s "sky.scaleZ = pCube1.skyScalar;"  -o sky -ae 1 -uc all ;
+
+select -r pSphere1 ;
+ConvertSelectionToVertices;
+select -cl;
+select pSphere1;
+
+         rename "yourNewObject";
+         expression -s "yourNewObject.rotateX = sky.rotateX;\nyourNewObject.rotateY = sky.rotateY;\nyourNewObject.rotateZ = sky.rotateZ;"  -o yourNewObject -ae 1 -uc all ;
+            
+}
+global proc func3() { 
+        int $i;
+        $i = 0;
+        string $meshObj[] = `ls -sl -fl`;
+        int $c[] = `polyEvaluate -vertex $meshObj[0]`; 
+
+       	int $span = `getAttr "pCube1.numbLightsSqrd"`; 
+        int $mult = ((($span-1)*$span)+2);
+        int $multAdd1 = $mult+1;
+
+         defaultSpotLight(1, 1,1,1, 0, 40, 0, 0, 0, 0,0,0, 1, 0); 
+          select -r spotLight1 ;
+          
+        string $yourOriginal[] = `ls -sl`;
+        select -r $yourOriginal;
+        rename $yourOriginal "yourOriginalObject";
+        
+
+        
+      setAttr "yourOriginalObjectShape.penumbraAngle" 10;
+
+
+        select -r "yourOriginalObject";        
+        while ($i < $c[0]){
+        vector $pt = `pointPosition ($meshObj[0] + ".pt[" + $i + "]")`;
+        duplicate -n ("vertLoc" + $i );
+        select -cl;
+        select -r ("vertLoc" + $i );
+        expression -s ("vector $vertexPos=`pointPosition " + $meshObj[0] + ".pt[" + $i + "]`;\ntranslateX = ($vertexPos.x);\ntranslateY = ($vertexPos.y);\ntranslateZ = ($vertexPos.z);") -o ("vertLoc" + $i) -ae 1 -uc all ;
+        $i++;
+        }
+ 
+ int $backItUp = $multAdd1 - 1;
+     for ($j=0; $j<$backItUp; $j++)
+     {
+           select -cl;
+        select -r ("vertLoc" + $j );
+        select -tgl sky;
+        parent;
+        expression -s (("vertLoc"+ $j)+".intensity = pCube1.lightIntensity;")  -o spotLightShape1 -ae 1 -uc all ;
+     }
+     
+     setAttr "vertLoc0.visibility" 0;
+setAttr "yourOriginalObject.visibility" 0;
+     
+     }
+     
+global proc func4() { 
+
+spaceLocator -p 0 0 0;
+rename LookAtMe;
+select -cl;
+
+        select -cl;
+	select yourNewObject;
+	int $i;
+        $i = 0;
+        string $meshObj[] = `ls -sl -fl`;
+        int $c[] = `polyEvaluate -vertex $meshObj[0]`;
+	int $span = `getAttr "pCube1.numbLightsSqrd"`; 
+        int $mult = ((($span-1)*$span)+2);
+        int $multAdd1 = $mult+1;
+	select -cl;
+	
+
+ int $backItUp = $multAdd1 - 1;
+     for ($j=0; $j<$backItUp; $j++)
+     {
+    select -r LookAtMe;
+    select -tgl ("vertLoc" + $j );
+    doCreateAimConstraintArgList 1 { "0","0","0","0","1","0","0","0","1","0","0","1","0","1","vector","","0","0","0","","1" };
+    setAttr (("vertLoc"+$j)+"_aimConstraint1.aimVectorX") (0);
+    setAttr (("vertLoc"+$j)+"_aimConstraint1.aimVectorZ") (-1);
+
+
+    }
+
+}
+
+global proc func5() { 
+
+
+        select -cl;
+	select yourNewObject;
+	int $i;
+        $i = 0;
+        string $meshObj[] = `ls -sl -fl`;
+        int $c[] = `polyEvaluate -vertex $meshObj[0]`; 
+        int $span = `getAttr "pCube1.numbLightsSqrd"`;
+        int $mult = ((($span-1)*$span)+2);
+        int $multAdd1 = $mult+1;
+	select -cl;
+
+ int $backItUp = $multAdd1 - 1;
+     for ($j=0; $j<$backItUp; $j++)
+     {
+    expression -s (("vertLoc"+$j)+".scaleX = pCube1.lightScale;");
+    expression -s (("vertLoc"+$j)+".scaleY = pCube1.lightScale;");
+    expression -s (("vertLoc"+$j)+".scaleZ = pCube1.lightScale;");
+    }
+}
+global proc func6() { 
+        select -cl;
+	    select yourNewObject;
+	    int $i;
+        $i = 0;
+        string $meshObj[] = `ls -sl -fl`;
+        int $c[] = `polyEvaluate -vertex $meshObj[0]`; 
+        int $span = `getAttr "pCube1.numbLightsSqrd"`;
+        int $mult = ((($span-1)*$span)+2);
+        int $multAdd1 = $mult+1;
+	    select -cl;
+
+  for ($j=0; $j<$mult; $j++){  
+   float $vCRGB[] = `polyColorPerVertex -q -r -g -b yourNewObject.vtx[($j)]`;
+         setAttr (("vertLoc"+$j)+"Shape.color") -type double3 ($vCRGB[0]) ($vCRGB[1]) ($vCRGB[2]) ;
+  }
+
+}
+{
+    
+//create window
+string $window = `window -widthHeight 430 600 -title "Cobra" myWindow `;
+columnLayout -bgc .4 .2 .3 -adjustableColumn 1;
+tabLayout -tabsVisible 0 -scrollable 1 -h 900 myTabLayout;
+
+frameLayout -bgc .8 .5 .2 -label "Initial Creation - Undoable Once Run";
+
+intSliderGrp -label "numberLightsSqrd" -field true -minValue 1 - maxValue 100 -value 10 numberLightsSqrd;
+connectControl numberLightsSqrd pCube1.numbLightsSqrd;
+
+button -bgc .6 .85 .7 -label "makeSky" -command "func";
+
+frameLayout -bgc .8 .5 .2 -label "CALL FILE NODE";
+
+button -bgc .6 .85 .7 -label "Select_File_Please" -command "func9";
+
+frameLayout -bgc .8 .5 .2 -label "CALL TEXTURES AND ASSIGN";
+
+button -bgc .6 .85 .7 -label "callTexture_FOR LIGHTS" -command "func1";
+button -bgc .6 .85 .7 -label "callSameTexture_FOR SKY" -command "func10";
+button -bgc .6 .85 .7 -label "AssignColorToSky-Ignore Error-CLICK 2 TIMES" -command "func11";
+
+frameLayout -bgc .8 .5 .2 -label "CREATE ATTRIBUTES";
+
+button -bgc .6 .85 .7 -label "skyScaleEnable" -command "func2";
+button -bgc .6 .85 .7 -label "createLights" -command "func3";
+button -bgc .6 .85 .7 -label "ready-Aim" -command "func4";
+button -bgc .6 .85 .7 -label "lightsScale" -command "func5";
+button -bgc .6 .85 .7 -label "setLightColor" -command "func6";
+
+frameLayout -bgc .8 .5 .2 -label "ADJUST ATTRIBUTES";
+
+floatSliderGrp -label "skyScale" -field true -minValue 1 - maxValue 200 -value 2 skyScale;
+connectControl skyScale pCube1.skyScalar;
+intSliderGrp -label "lightScale" -field true -minValue 1 - maxValue 100 -value 2 lightScale;
+connectControl lightScale pCube1.lightScale;
+floatSliderGrp -label "lightIntensity" -field true -minValue 0 - maxValue 10 -value 1 lightIntensity;
+connectControl lightIntensity pCube1.lightIntensity;
+
+showWindow $window;
+} 
+
+window -e -wh 430 600 myWindow;
