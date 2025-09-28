@@ -1,0 +1,2243 @@
+//catch(`loadPlugin "C:/solidangle/mtoadeploy/2017/plug-ins/mtoa.mll"`);
+//-----------------------------------------------------------------
+//	SCRIPT			NukeIt
+//	AUTHOR			Timothy Babb
+//				timothybabbvfx@gmail.com
+//	DATE:			2018
+//
+//
+//	VERSION:		2.1
+/*END-USER SOFTWARE LICENSE AGREEMENT
+The user is defined as anyone who has obtained a copy of the NukeIt plugin from the author.
+Non-User is defined as anyone who has obtained the plugin from a source other than the author.
+The Non-User waves all rights to the use, examination and distribution or sale of the whole or any part of the NukeIt script and plugin.  
+By using this software the user agrees to all of the terms set within.  
+The user is allowed commercial and noncommercial use of this plugin.
+The user is allowed to install the NukeIt plugin on up to 2 workstations owned by the user. 
+If the user wishes to install the NukeIt plugin on more than 2 workstations the user must obtain additional copies of the NukeIt plugin from the author.
+The NukeIt plugin can be transfered from one workstation to another as long as the user doesn't exceed the number of total allowable installations.  
+The user is not allowed under any circumstance to sell or distribute as a whole or any parts of the plugin or script contained within.
+*/
+//-----------------------------------------------------------------
+
+if ( `objExists pCube1` ){
+select -cl;
+}
+else {
+polyCube;
+select -r pCube1 ;
+setAttr "pCube1.visibility" 0;
+addAttr -ln "curveNumber" -at double -dv 0 |pCube1;
+addAttr -ln "curveNumberPlus" -at double -dv 0 |pCube1;
+addAttr -ln "curveNumberBody" -at double -dv 0 |pCube1;
+addAttr -ln "curveNumberBodyPlus" -at double -dv 0 |pCube1;
+addAttr -ln "initialNumber" -at double -dv 0 |pCube1; 
+setAttr "pCube1.initialNumber" 180;
+addAttr -ln "particleScale" -at double -dv 0 |pCube1;
+setAttr "pCube1.particleScale" 35;
+addAttr -ln "particleScale2" -at double -dv 0 |pCube1;
+setAttr "pCube1.particleScale2" 35;
+addAttr -ln "particleSpeedTwo" -at double -dv 0 |pCube1;
+setAttr "pCube1.particleSpeedTwo" 30;
+addAttr -ln "particleSpeedOne" -at double -dv 0 |pCube1;
+setAttr "pCube1.particleSpeedOne" 27;
+addAttr -ln "emissionRateOne" -at double -dv 0 |pCube1;
+addAttr -ln "emissionRateTwo" -at double -dv 0 |pCube1;
+setAttr "pCube1.emissionRateOne" 1.5;
+setAttr "pCube1.emissionRateTwo" 3;
+addAttr -ln "bodySection" -at double -dv 0 |pCube1;
+setAttr "pCube1.bodySection" 8;
+addAttr -ln "bodyEmissionRateOne" -at double -dv 0 |pCube1;
+addAttr -ln "bodyEmissionRateTwo" -at double -dv 0 |pCube1;
+addAttr -ln "RandVMult" -at double -dv 0 |pCube1;
+addAttr -ln "RandUMult" -at double -dv 0 |pCube1;
+setAttr "pCube1.RandUMult" 150;
+setAttr "pCube1.RandVMult" 150;
+addAttr -ln "RandVBodyMult" -at double -dv 0 |pCube1;
+addAttr -ln "RandUBodyMult" -at double -dv 0 |pCube1;
+setAttr "pCube1.RandUBodyMult" 70;
+setAttr "pCube1.RandVBodyMult" 70;
+addAttr -ln "densityZero" -at double -dv 0 |pCube1;
+select -r pCube1 ;
+addAttr -ln "forIncanMaxBodyValue" -at double -dv 0;
+addAttr -ln "forIncanMinBodyValue" -at double -dv 0;
+addAttr -ln "bodyParticleScale" -at double -dv 0 |pCube1;
+addAttr -ln "bodySpeedOne" -at double -dv 0 |pCube1;
+addAttr -ln "bodySpeedTwo" -at double -dv 0 |pCube1;
+setAttr "pCube1.bodyEmissionRateOne" 1.5;
+setAttr "pCube1.bodyEmissionRateTwo" 3;
+addAttr -ln "bodyRandU" -at double -dv 0 |pCube1;
+addAttr -ln "bodyRandV" -at double -dv 0 |pCube1;
+setAttr "pCube1.bodyRandU" 0.8;
+setAttr "pCube1.bodyRandV" 2.5;
+addAttr -ln "randU" -at double -dv 0 |pCube1;
+addAttr -ln "randV" -at double -dv 0 |pCube1;
+setAttr "pCube1.randU" 0.5;
+addAttr -ln "cloudDensity" -at double -dv 0 |pCube1;
+addAttr -ln "torusGroundDensity" -at double -dv 0 |pCube1;
+addAttr -ln "groundSizeDiv" -at double -dv 0 |pCube1;
+setAttr "pCube1.groundSizeDiv" 10;
+addAttr -ln "bodyDensity" -at double -dv 0 |pCube1;
+setAttr "pCube1.randV" 3.0;
+addAttr -ln "particleRandomBodyStringSize1" -at double -dv 0 |pCube1;
+addAttr -ln "particleRandomBodyStringSize2" -at double -dv 0 |pCube1;
+addAttr -ln "particleRandomStringSize1" -at double -dv 0 |pCube1;
+addAttr -ln "particleRandomStringSize2" -at double -dv 0 |pCube1;
+addAttr -ln "groundRandU" -at double -dv 0 |pCube1;
+addAttr -ln "groundRandV" -at double -dv 0 |pCube1;
+setAttr "pCube1.groundRandU" 0.5;
+setAttr "pCube1.groundRandV" 3;
+addAttr -ln "groundGeoSubdivision" -at long -dv 0 |pCube1;
+setAttr "pCube1.groundGeoSubdivision" 3;
+setAttr "pCube1.forIncanMinBodyValue" -.2;
+setAttr "pCube1.forIncanMaxBodyValue" .8;
+setAttr "pCube1.bodyParticleScale" 35;
+setAttr "pCube1.bodySpeedOne" 27;
+setAttr "pCube1.bodySpeedTwo" 30;
+setAttr "pCube1.particleRandomBodyStringSize1" 1;
+setAttr "pCube1.particleRandomBodyStringSize2" 1;
+setAttr "pCube1.particleRandomStringSize1" 1;
+setAttr "pCube1.particleRandomStringSize2" 1;
+setAttr "pCube1.cloudDensity" 50000;
+addAttr -ln "curveAngle" -at double -dv 0 |pCube1;
+setAttr "pCube1.curveAngle" -90;
+addAttr -ln "particleHeadVarySpeedBy" -at double -dv 0 |pCube1;
+setAttr "pCube1.particleHeadVarySpeedBy" 3;
+addAttr -ln "particleBodyVarySpeedBy" -at double -dv 0 |pCube1;
+setAttr "pCube1.particleBodyVarySpeedBy" 3;
+addAttr -ln "arrayStart"  -at double  -dv 0 |pCube1;
+addAttr -ln "arrayEnd"  -at double  -dv 0 |pCube1;
+setAttr "pCube1.arrayStart" 5;
+addAttr -ln "arrayStartBody"  -at double  -dv 0 |pCube1;
+addAttr -ln "arrayEndBody"  -at double  -dv 0 |pCube1;
+setAttr "pCube1.arrayStartBody" 5;
+addAttr -ln "noiseOff1"  -at double  -dv 0 |pCube1;
+addAttr -ln "noiseOff2"  -at double  -dv 0 |pCube1;
+addAttr -ln "noiseOff3"  -at double  -dv 0 |pCube1;
+setAttr "pCube1.noiseOff1" 2;
+setAttr "pCube1.noiseOff2" 9;
+setAttr "pCube1.noiseOff3" 13;
+
+
+global float $v;
+global float $curveValue;
+global float $bodyRandU;
+global float $bodyRandV;
+global float $randU;
+global float $randV;
+shadingNode -asTexture ramp;
+rename ramp1 "AAA_masterIncanBurnBaby" ;
+connectAttr -force AAA_masterIncanBurnBaby.outColor lambert1.color;
+setAttr AAA_masterIncanBurnBaby.colorEntryList[2].position 0.830904;
+
+shadingNode -asTexture ramp;
+rename ramp1 "BBB_masterIncanBurnBaby" ;
+connectAttr -force BBB_masterIncanBurnBaby.outColor lambert1.color;
+setAttr BBB_masterIncanBurnBaby.colorEntryList[2].position 0.830904;
+
+shadingNode -asUtility colorConstant;
+rename colorConstant1 "color1" ;
+shadingNode -asUtility colorConstant;
+rename colorConstant1 "color2" ;
+shadingNode -asUtility colorConstant;
+rename colorConstant1 "color3" ;
+setAttr "color1.inColor" -type double3 1 0.6656 0 ;
+setAttr "color2.inColor" -type double3 1 0.178 0 ;
+setAttr "color3.inColor" -type double3 0.002 0.000356 0 ;
+connectAttr -force color1.outColor AAA_masterIncanBurnBaby.colorEntryList[1].color;
+connectAttr -force color2.outColor AAA_masterIncanBurnBaby.colorEntryList[2].color;
+connectAttr -force color3.outColor AAA_masterIncanBurnBaby.colorEntryList[0].color;
+setAttr "AAA_masterIncanBurnBaby.colorEntryList[1].position" 1;
+setAttr "AAA_masterIncanBurnBaby.colorEntryList[0].position" 0.6793;
+setAttr "AAA_masterIncanBurnBaby.colorEntryList[2].position" 0.845481;
+
+connectAttr -force color1.outColor BBB_masterIncanBurnBaby.colorEntryList[1].color;
+connectAttr -force color2.outColor BBB_masterIncanBurnBaby.colorEntryList[2].color;
+connectAttr -force color3.outColor BBB_masterIncanBurnBaby.colorEntryList[0].color;
+setAttr "BBB_masterIncanBurnBaby.colorEntryList[1].position" 1;
+setAttr "BBB_masterIncanBurnBaby.colorEntryList[0].position" 0.6793;
+setAttr "BBB_masterIncanBurnBaby.colorEntryList[2].position" 0.845481;
+
+//note the master is assigned to the incanDrivers around line 570
+}
+if ( `window -exists myWindow` )
+deleteUI -window myWindow;
+
+//***********************************************************
+
+global proc newFunc1(){
+    dynExecFluidEmitterCommands 1 { "1", "fluidEmitter -pos 0 0 0 -type omni -der 1 -her 1 -fer 1 -fdr 2 -r 100.0 -cye none -cyi 1 -mxd 1 -mnd 0 ", 0, 0, 0, 0, 0, 0, 10, 10, 10, 10, 10, 10, 0, 0, 1} ;
+//fluidEmitter -pos 0 0 0 -type omni -der 1 -her 1 -fer 1 -fdr 2 -r 100.0 -cye none -cyi 1 -mxd 1 -mnd 0 ;
+select -r fluid1 ;
+setAttr "fluidShape1.squareVoxels" 0;
+setAttr "fluidShape1.densityMethod" 3;
+setAttr "fluidShape1.velocityMethod" 0;
+setAttr "fluidShape1.densityScale" 0.446;
+setAttr "fluidShape1.transparency" -type double3 0.1 0.1 0.1 ;
+setAttr "fluidShape1.dropoffShape" 1;
+setAttr |fluid1|fluidShape1.color[1].color_Interp 1;
+setAttr "fluidShape1.color[1].color_Position" 0.986;
+setAttr |fluid1|fluidShape1.color[2].color_Interp 1;
+setAttr "fluidShape1.color[2].color_Position" 0.636;
+setAttr "fluidShape1.color[2].color_Color" -type double3 0.598 0.593129 0.552552 ;
+setAttr "fluidShape1.color[0].color_Color" -type double3 0.701 0.62369 0.564305 ;
+setAttr "fluidShape1.colorInput" 2;
+setAttr "fluidShape1.incandescence[2].incandescence_Color" -type double3 0 0 0 ;
+setAttr "fluidShape1.incandescence[2].incandescence_Position" 0.557;
+setAttr "fluidShape1.incandescence[1].incandescence_Position" 0.336;
+setAttr "fluidShape1.incandescence[1].incandescence_Color" -type double3 0.027391 0.0667523 0.091 ;
+setAttr "fluidShape1.incandescence[0].incandescence_Position" 0.207;
+setAttr "fluidShape1.incandescence[0].incandescence_Color" -type double3 0.095256 0.138398 0.162 ;
+setAttr |fluid1|fluidShape1.incandescence[3].incandescence_Interp 1;
+setAttr "fluidShape1.incandescence[3].incandescence_Position" 0.021;
+setAttr "fluidShape1.incandescence[3].incandescence_Color" -type double3 0.23079 0.283175 0.314 ;
+setAttr "fluidShape1.incandescence[3].incandescence_Interp" 3;
+setAttr "fluidShape1.incandescence[0].incandescence_Interp" 3;
+setAttr "fluidShape1.incandescence[1].incandescence_Interp" 3;
+setAttr "fluidShape1.incandescence[2].incandescence_Interp" 3;
+setAttr "fluidShape1.incandescenceInput" 4;
+setAttr "fluidShape1.incandescenceInputBias" -0.217;
+setAttr |fluid1|fluidShape1.opacity[4].opacity_FloatValue 0.2;
+setAttr "fluidShape1.opacity[0].opacity_Position" 0.271;
+setAttr "fluidShape1.opacity[0].opacity_FloatValue" 0.8;
+setAttr |fluid1|fluidShape1.opacity[2].opacity_FloatValue 0.1;
+setAttr |fluid1|fluidShape1.opacity[2].opacity_Position 0.2364;
+setAttr "fluidShape1.opacity[2].opacity_Interp" 1;
+setAttr "fluidShape1.opacity[4].opacity_Position" 0.19;
+setAttr "fluidShape1.opacity[4].opacity_FloatValue" 0;
+setAttr "fluidShape1.opacity[4].opacity_Interp" 1;
+setAttr "fluidShape1.opacityInput" 4;
+setAttr "fluidShape1.opacityInputBias" -0.109;
+setAttr "fluidShape1.quality" 3;
+setAttr "fluidShape1.renderInterpolator" 3;
+setAttr "fluidShape1.incandTexture" 1;
+setAttr "fluidShape1.opacityTexture" 1;
+setAttr "fluidShape1.textureType" 4;
+setAttr "fluidShape1.incandTexGain" 0.932;
+setAttr "fluidShape1.opacityTexGain" 0.66;
+setAttr "fluidShape1.amplitude" 0.864;
+setAttr "fluidShape1.ratio" 0.427;
+setAttr "fluidShape1.frequencyRatio" 2.311;
+setAttr "fluidShape1.inflection" 1;
+setAttr "fluidShape1.frequency" 2.136;
+setAttr "fluidShape1.implode" 0.262;
+setAttr "fluidShape1.selfShadowing" 1;
+setAttr "fluidShape1.shadowOpacity" 0.621;
+setAttr "fluidShape1.depthMax" 3;
+setAttr "fluidShape1.realLights" 0;
+setAttr "fluidShape1.directionalLightX" 0.3;
+setAttr "fluidShape1.directionalLightY" 0.9;
+setAttr "fluidShape1.directionalLightZ" 0.2;
+setAttr "fluidShape1.opacity[4].opacity_Position" 0.129;
+//setAttr "fluid1.visibility" 0;
+select -r fluidShape1 ;
+removeMultiInstance -break true |fluid1|fluidShape1.incandescence[0];
+setAttr "fluidShape1.incandescence[2].incandescence_Position" 1;
+setAttr "fluidShape1.incandescence[2].incandescence_Color" -type double3 1 1 0 ;
+setAttr "fluidShape1.incandescence[1].incandescence_Interp" 2;
+setAttr "fluidShape1.incandescence[1].incandescence_Position" 0.86;
+setAttr "fluidShape1.incandescence[1].incandescence_Color" -type double3 0.672457 0.0466647 0 ;
+setAttr "fluidShape1.incandescence[3].incandescence_Position" 0.69;
+setAttr "fluidShape1.incandescence[3].incandescence_Color" -type double3 0.001 0.000911867 0.0009 ;
+setAttr "fluidShape1.incandescence[3].incandescence_Interp" 2;
+setAttr "fluidShape1.quality" 0.25;
+setAttr "fluidShape1.shadowOpacity" 1;
+setAttr "fluidShape1.lightBrightness" 0;
+setAttr "fluidShape1.ambientBrightness" 0.5;
+setAttr "fluidShape1.ambientColor" -type double3 0.506 0.41764 0.360778 ;
+setAttr "fluidShape1.realLights" 1;
+
+//setAttr |fluid1|fluidShape1.incandescence[4].incandescence_Color -type double3 1 0.85005 0 ;
+setAttr "fluidShape1.color[2].color_Color" -type double3 0.02 0.0198371 0.01848 ;
+setAttr "fluidShape1.colorInputBias" -0.563;
+//setAttr |fluid1|fluidShape1.incandescence[5].incandescence_Color -type double3 0 0 0;
+//removeMultiInstance -break true |fluid1|fluidShape1.incandescence[1];
+//removeMultiInstance -break true |fluid1|fluidShape1.incandescence[2];
+//setAttr "fluidShape1.incandescence[3].incandescence_Color" -type double3 0.006 0.0054712 0.0054 ;
+setAttr "fluidShape1.opacityInputBias" -0.15;
+setAttr "fluidShape1.boundaryDraw" 5;
+setAttr "fluidShape1.aiOverrideTextures" 1;
+setAttr "fluidShape1.aiTextureAffectOpacity" 1;
+shadingNode -asShader aiNoise;
+removeMultiInstance -break true |fluid1|fluidShape1.color[0];
+removeMultiInstance -break true |fluid1|fluidShape1.color[1];
+setAttr "fluidShape1.incandescence[2].incandescence_Position" 0.939;
+setAttr "fluidShape1.incandescence[2].incandescence_Color" -type double3 1 0.783333 0 ;
+setAttr "fluidShape1.incandescence[2].incandescence_Color" -type double3 1 0.940417 0.725 ;
+setAttr "fluidShape1.incandescence[2].incandescence_Color" -type double3 1 0.940417 0.725 ;
+setAttr "fluidShape1.incandescence[1].incandescence_Position" 0.765;
+setAttr "fluidShape1.incandescence[1].incandescence_Color" -type double3 0.672 0.0466368 0 ;
+setAttr "fluidShape1.incandescence[1].incandescence_Color" -type double3 0.672 0.0336 0 ;
+setAttr "fluidShape1.incandescence[1].incandescence_Color" -type double3 0.672 0.0336 0 ;
+setAttr "fluidShape1.incandescence[1].incandescence_Color" -type double3 1 0.05 0 ;
+setAttr "fluidShape1.incandescence[1].incandescence_Color" -type double3 1 0.05 0 ;
+setAttr "fluidShape1.incandescence[3].incandescence_Position" 0.574;
+//select -r aiNoise1;
+//doDelete;
+connectAttr -force aiNoise1.outTransparency fluidShape1.aiVolumeTexture;
+setAttr "fluidShape1.transparency" -type double3 0.016 0.016 0.016 ;
+setAttr "fluidShape1.edgeDropoff" 0.3;
+
+setAttr "fluidShape1.color[3].color_Position" 0;
+setAttr "fluidShape1.color[2].color_Position" 1;
+setAttr "fluidShape1.color[2].color_Color" -type double3 0.02 0.0191105 0.01848 ;
+setAttr "fluidShape1.color[2].color_Color" -type double3 0.02 0.02 0.02 ;
+setAttr "fluidShape1.color[2].color_Color" -type double3 0.051 0.051 0.051 ;
+setAttr "fluidShape1.color[2].color_Color" -type double3 0.051 0.051 0.051 ;
+setAttr "fluidShape1.color[3].color_Color" -type double3 0.02 0.0198371 0.01848 ;
+setAttr "fluidShape1.color[3].color_Color" -type double3 0.02 0.0198371 0.01848 ;
+setAttr "fluidShape1.color[3].color_Color" -type double3 0.02 0.0191105 0.01848 ;
+setAttr "fluidShape1.color[3].color_Color" -type double3 0.02 0.017753 0.01616 ;
+setAttr "fluidShape1.color[3].color_Color" -type double3 0.699 0.620466 0.564792 ;
+setAttr "fluidShape1.color[3].color_Color" -type double3 0.699 0.620466 0.564792 ;
+setAttr "fluidShape1.color[2].color_Interp" 3;
+setAttr "fluidShape1.color[3].color_Interp" 3;
+setAttr "fluidShape1.color[2].color_Interp" 1;
+setAttr "fluidShape1.color[3].color_Position" 0;
+setAttr "fluidShape1.color[3].color_Color" -type double3 0.699 0.620466 0.564792 ;
+setAttr "fluidShape1.color[3].color_Color" -type double3 0.182 0.161552 0.147056 ;
+setAttr "fluidShape1.color[3].color_Color" -type double3 0.182 0.161552 0.147056 ;
+setAttr "fluidShape1.colorInputBias" 0;
+setAttr "fluidShape1.opacityInputBias" -0.109;
+setAttr "fluidShape1.incandescence[2].incandescence_Color" -type double3 1 0.841617 0.269 ;
+setAttr "fluidShape1.incandescence[1].incandescence_Color" -type double3 1 0 0 ;
+setAttr "fluidShape1.incandescence[2].incandescence_Position" 0.982609;
+setAttr "fluidShape1.incandescence[1].incandescence_Color" -type double3 1 0.1253 0 ;
+setAttr "fluidShape1.incandescence[1].incandescence_Position" 0.817391;
+setAttr "fluidShape1.incandescence[3].incandescence_Color" -type double3 0.005 0.00455933 0.0045 ;
+setAttr "fluidShape1.incandescence[3].incandescence_Position" 0.13913;
+setAttr |fluid1|fluidShape1.incandescence[4].incandescence_Color -type double3 0.383441 0.0504822 0.00278846;
+setAttr |fluid1|fluidShape1.incandescence[4].incandescence_Position 0.426087;
+setAttr |fluid1|fluidShape1.incandescence[5].incandescence_Color -type double3 0.680962 0.0865856 0.00144289;
+setAttr |fluid1|fluidShape1.incandescence[5].incandescence_Position 0.617391;
+setAttr "fluidShape1.incandescence[1].incandescence_Position" 0.783;
+setAttr "fluidShape1.incandescence[5].incandescence_Position" 0.642;
+setAttr "fluidShape1.incandescence[4].incandescence_Position" 0.496;
+setAttr "fluidShape1.incandescence[2].incandescence_Color" -type double3 1 0.841617 0.269 ;
+setAttr "fluidShape1.incandescence[1].incandescence_Color" -type double3 1 0.1253 0 ;
+setAttr "fluidShape1.incandescence[5].incandescence_Color" -type double3 0.169 0.0150468 0.006422 ;
+setAttr "fluidShape1.incandescence[4].incandescence_Color" -type double3 0.015 0.015 0.015 ;
+setAttr "fluidShape1.incandescence[1].incandescence_Interp" 3;
+setAttr "fluidShape1.incandescence[5].incandescence_Interp" 3;
+setAttr "fluidShape1.incandescence[4].incandescence_Interp" 3;
+
+
+select -r fluid1 ;
+}
+
+global proc aNewFunc2(){
+
+float $numb = 1.0;
+for($i=1; $i<300; $i++){
+    select -r fluid1 ;
+    duplicate -upstreamNodes;
+    rename "fluid2" (("i")+$i);
+    setAttr (("iShape"+$i)+".incandescenceInputBias") ($numb -= 0.00625);
+    setAttr(("i"+$i)+".visibility") 0;
+    setAttr (("i"+$i)+".scaleZ") .1;
+    setAttr (("i"+$i)+".scaleX") .1;
+    setAttr (("i"+$i)+".scaleY") .1;
+    select -r fluid1 ;
+}
+
+select -r i1 i2 i3 i4 i5 i6 i7 i8 i9 i10 i11 i12 i13 i14 i15 i16 i17 i18 i19 i20 i21 i22 i23 i24 i25 i26 i27 i28 i29 i30 i31 i32 i33 i34 i35 i36 i37 i38 i39 i40 i41 i42 i43 i44 i45 i46 i47 i48 i49 i50 i51 i52 i53 i54 i55 i56 i57 i58 i59 i60 i61 i62 i63 i64 i65 i66 i67 i68 i69 i70 i71 i72 i73 i74 i75 i76 i77 i78 i79 i80 i81 i82 i83 i84 i85 i86 i87 i88 i89 i90 i91 i92 i93 i94 i95 i96 i97 i98 i99 i100 i101 i102 i103 i104 i105 i106 i107 i108 i109 i110 i111 i112 i113 i114 i115 i116 i117 i118 i119 i120 i121 i122 i123 i124 i125 i126 i127 i128 i129 i130 i131 i132 i133 i134 i135 i136 i137 i138 i139 i140 i141 i142 i143 i144 i145 i146 i147 i148 i149 i150 i151 i152 i153 i154 i155 i156 i157 i158 i159 i160 i161 i162 i163 i164 i165 i166 i167 i168 i169 i170 i171 i172 i173 i174 i175 i176 i177 i178 i179 i180 i181 i182 i183 i184 i185 i186 i187 i188 i189 i190 i191 i192 i193 i194 i195 i196 i197 i198 i199 i200 i201 i202 i203 i204 i205 i206 i207 i208 i209 i210 i211 i212 i213 i214 i215 i216 i217 i218 i219 i220 i221 i222 i223 i224 i225 i226 i227 i228 i229 i230 i231 i232 i233 i234 i235 i236 i237 i238 i239 i240 i241 i242 i243 i244 i245 i246 i247 i248 i249 i250 i251 i252 i253 i254 i255 i256 i257 i258 i259 i260 i261 i262 i263 i264 i265 i266 i267 i268 i269 i270 i271 i272 i273 i274 i275 i276 i277 i278 i279 i280 i281 i282 i283 i284 i285 i286 i287 i288 i289 i290 i291 i292 i293 i294 i295 i296 i297 i298 i299 ;
+doGroup 0 1 1;
+rename "group1" "i";
+
+setAttr "fluid1.visibility" 0;
+
+for ($i=2; $i<300; $i++){
+float $j = $i-1;
+expression -s "scaleX = aiNoise1.scaleX;"  -o ("aiNoise"+$i) -ae 1 -uc all ;
+expression -s "scaleY = aiNoise1.scaleY;"  -o ("aiNoise"+$i) -ae 1 -uc all ;
+expression -s "scaleZ = aiNoise1.scaleZ;"  -o ("aiNoise"+$i) -ae 1 -uc all ;
+expression -s "amplitude = aiNoise1.amplitude;"  -o ("aiNoise"+$i) -ae 1 -uc all ;
+expression -s "offsetY = aiNoise1.offsetY;"  -o ("aiNoise"+$i) -ae 1 -uc all ;
+expression -s "offsetZ = aiNoise1.offsetZ;"  -o ("aiNoise"+$i) -ae 1 -uc all ;
+//expression -s "opacityInputBias = fluidShape1.opacityInputBias;"  -o ("iShape"+$j) -ae 1 -uc all ;
+expression -s "densityScale = fluidShape1.densityScale;"  -o ("iShape"+$j) -ae 1 -uc all ;
+}
+
+expression -s "aiNoise1.scaleY = aiNoise1.scaleX;"  -o ("aiNoise"+$i) -ae 1 -uc all ;
+expression -s "aiNoise1.scaleZ = aiNoise1.scaleX;"  -o ("aiNoise"+$i) -ae 1 -uc all ;
+
+for($i=2; $i<295; $i+=3){
+    expression -s "offsetX = pCube1.noiseOff1;"  -o ("aiNoise"+$i) -ae 1 -uc all ;
+}
+
+for($i=3; $i<295; $i+=3){
+    expression -s "offsetX = pCube1.noiseOff1;"  -o ("aiNoise"+$i) -ae 1 -uc all ;
+}
+
+for($i=4; $i<295; $i+=3){
+    expression -s "offsetX = pCube1.noiseOff1;"  -o ("aiNoise"+$i) -ae 1 -uc all ;
+}
+shadingNode -asTexture ramp;
+shadingNode -asUtility place2dTexture;
+connectAttr place2dTexture1.outUV ramp1.uv;
+connectAttr place2dTexture1.outUvFilterSize ramp1.uvFilterSize;
+removeMultiInstance -break true ramp1.colorEntryList[1];
+setAttr "ramp1.colorEntryList[0].color" -type double3 0.016 0.016 0.016 ;
+setAttr "ramp1.colorEntryList[1].color" -type double3 0.118 0.118 0.118 ;
+rename "ramp1" "transpBase";
+shadingNode -asUtility colorConstant;
+rename "colorConstant1" "transp";
+connectAttr -force transp.outColor transpBase.colorEntryList[0].color;
+setAttr "transp.inColor" -type double3 0.016 0.016 0.016 ;
+shadingNode -asUtility luminance;
+connectAttr -force transp.outColor luminance1.value;
+connectAttr -f luminance1.outValue transpBase.colorEntryList[0].colorR;
+connectAttr -f luminance1.outValue transpBase.colorEntryList[0].colorG;
+connectAttr -f luminance1.outValue transpBase.colorEntryList[0].colorB;
+connectAttr -f luminance1.value transpBase.colorEntryList[0].color;
+
+
+connectAttr -force transpBase.outColor fluidShape1.transparency;
+for($i=1; $i<300; $i++){
+    connectAttr -force transpBase.outColor (("iShape"+$i)+".transparency");
+}
+
+print("Some Very Important Stuff Completed");
+
+}
+
+
+global proc connect(){
+for ($i=1; $i<300; $i++){
+expression -s "incandescence[1].incandescence_Position = fluidShape1.incandescence[1].incandescence_Position;\nincandescence[2].incandescence_Position = fluidShape1.incandescence[2].incandescence_Position;\nincandescence[3].incandescence_Position = fluidShape1.incandescence[3].incandescence_Position;\nincandescence[4].incandescence_Position = fluidShape1.incandescence[4].incandescence_Position;\nincandescence[5].incandescence_Position = fluidShape1.incandescence[5].incandescence_Position;"  -o ("iShape"+$i) -ae 1 -uc all ;
+}
+    
+}
+
+
+global proc func() {
+
+//***************************Button1************************************************
+{
+
+//Add Curve Angle Controller
+float $curveValue = `floatSliderGrp -q -v GlowAngle`;
+addAttr -ln "GlowAngle" -at double -dv 0 |pCube1;
+setAttr pCube1.curveAngle $curveValue;
+float $angle = `getAttr pCube1.curveAngle`;
+
+//Add Rand Radius PP Attribute to Cube
+addAttr -ln "randRadius" -at double -dv 0 |pCube1;
+expression -s "pCube1.randRadius=rand(.007,.015)" -o pCube1 -ae 1 -uc all ;
+
+//Add Rand UserVector1 Attribute for Texture
+addAttr -ln "RandTextureAtr" -at double -dv 0 |pCube1;
+expression -s "pCube1.RandTextureAtr = sphrand(20);" -o pCube1 -ae 1 -uc all ;
+}
+
+{
+torus -p 0 0 0 -ax 0 1 0 -ssw 0 -esw 360 -msw 360 -r 1 -hr 0.5 -d 3 -ut 0 -tol 0.01 -s 8 -nsp 4 -ch 1; objectMoveCommand;
+select -r nurbsTorus1 ;
+setAttr "nurbsTorus1.scaleX" 5;
+setAttr "nurbsTorus1.scaleY" 5;
+setAttr "nurbsTorus1.scaleZ" 5;
+setAttr "makeNurbTorus1.spans" 25;
+select -r nurbsTorus1.v[0] ;
+duplicateCurveToolScript 4;
+CenterPivot;
+expression -s "duplicatedCurve1.rotateZ = pCube1.curveAngle;" -o duplicatedCurve1 -ae 1 -uc all ;
+move -rpr 0 0 0 duplicatedCurve1.scalePivot duplicatedCurve1.rotatePivot ;
+
+float $v = `intSliderGrp -q -v sectionSlider`;
+
+revolve -ch 1 -po 0 -rn 0 -ssw 0 -esw 360 -ut 0 -tol 0.01 -degree 3 -s ($v) -ulp 1 -ax 0 1 0 "duplicatedCurve1";
+
+select -r nurbsTorus1 ;
+setAttr "nurbsTorus1.visibility" 0;
+
+setAttr "revolvedSurface1.rotateZ" 180;
+
+select -r duplicatedCurve1 ;
+rename "duplicatedCurve1" "origCurve";
+
+select -r revolvedSurface1 ;
+string $nurbeTorus="revolvedSurface1";
+
+string $surfaceInfo = `createNode surfaceInfo`;
+
+connectAttr -f (($nurbeTorus)+".worldSpace") (($surfaceInfo)+".inputSurface");
+
+float $isoVertical[] = `getAttr ($surfaceInfo+".knotsV")`;
+float $numOfVerts = size($isoVertical);
+
+select -cl;
+
+for ($i=0; $i<($numOfVerts+1); $i++){ 
+float $oneByOne = $isoVertical[$i];
+select -tgl revolvedSurface1.v[$oneByOne] ;
+}
+
+duplicateCurveToolScript 4;
+
+delete $surfaceInfo;
+
+doGroup 0 1 1;
+
+rename "group1" "curves";
+createDisplayLayer -name "curvesLayer" -number 1 -nr;
+}
+
+select -r `listTransforms "-type nurbsCurve"`;
+select -d origCurve ;
+float $numberTotal = (size(`ls -sl`));
+
+expression -s "pCube1.curveNumber = $numberTotal;" -o pCube1 -ae 1 -uc all ;
+expression -s "pCube1.curveNumberPlus = pCube1.curveNumber+1;" -o pCube1 -ae 1 -uc all ;
+float $numberTotalPlus = $numberTotal+1;
+
+delete "expression1";
+delete "expression2";
+
+{
+
+select -cl;
+for ($i=1; $i<($numberTotalPlus); $i++){
+select -r (("duplicatedCurve")+($i)); 
+CurveFlow; 
+}
+
+}
+
+
+{
+
+select -cl;
+select Flow;
+for ($i=1; $i<($numberTotal); $i++){
+select -tgl (("Flow")+($i));
+}
+doGroup 0 1 1;
+rename "group1" "FlowGroup";
+createDisplayLayer -name "FlowGroupLayer" -number 1 -nr;
+}
+
+{
+
+rename "Flow" (("Flow")+($numberTotal));
+rename "Flow_particle" (("Flow")+($numberTotal)+("_particle"));
+rename "Flow_emitter" (("Flow")+($numberTotal)+("_emitter"));
+rename "Flow_scalableCircles" (("Flow")+($numberTotal)+("_scalableCircles"));
+
+
+for ($i=1; $i<($numberTotalPlus); $i++){
+addAttr -ln radiusPP -dt doubleArray (("Flow"+$i)+"_particleShape");
+addAttr -ln radiusPP0 -dt doubleArray (("Flow"+$i)+"_particleShape");
+}
+
+for ($i=1; $i<($numberTotalPlus); $i++){
+addAttr -ln userVector1PP -dt vectorArray (("Flow"+$i)+"_particleShape");
+addAttr -ln userVector1PP0 -dt vectorArray (("Flow"+$i)+"_particleShape");
+}
+
+}
+
+{
+
+spaceLocator -p 0 0 0;
+}
+
+
+{
+
+for ($i=1; $i<($numberTotalPlus); $i++){ 
+select (("Flow"+$i)+"_particle");
+string $particleVar[] = `ls -sl`;
+
+addAttr -ln "randScaleInst0"  -dt vectorArray  (("Flow"+$i)+"_particleShape");
+addAttr -ln "randScaleInst"  -dt vectorArray  (("Flow"+$i)+"_particleShape");
+setAttr -e-keyable true (("Flow"+$i)+"_particleShape.randScaleInst");
+
+addAttr -ln "randRotInst0"  -dt vectorArray  (("Flow"+$i)+"_particleShape");
+addAttr -ln "randRotInst"  -dt vectorArray  (("Flow"+$i)+"_particleShape");
+setAttr -e-keyable true (("Flow"+$i)+"_particleShape.randRotInst");
+
+addAttr -ln "randId"  -dt doubleArray (("Flow"+$i)+"_particleShape");
+setAttr -e-keyable true (("Flow"+$i)+"_particleShape.randId");
+
+
+dynExpression -s "//Mine\n$randU=pCube1.randU/pCube1.RandUMult;\n$randV=pCube1.randV/pCube1.RandVMult;\nradiusPP = rand($randU,$randV);\n//TextureOrigin\nuserVector1PP = sphrand(20);\n\n//newArnoldVer\nrandScaleInst = rand(.5, 1.5);\nrandRotInst = rand(360);\nrandId = rand(0,4);\n\n\n\n\n//Theirs\ngoalPP = 0;\nvector $idVector = particleId;\nvector $randomPosition = dnoise( $idVector * 10.0 ) * 100.0;\nrandomPosition = $randomPosition;\nfloat $randomMotionSpeed = randomMotionSpeed;\nfloat $maxDistance = maxDistance;\nvector $curveOffset =\n dnoise( $randomPosition + ( time * $randomMotionSpeed ) ) *\n $maxDistance;\nvector $rampValues = rampValues;\ncurveOffset =\n curveOffset;\ngoalOffset =\n $rampValues + $curveOffset;" -c $particleVar;
+}
+
+
+
+
+
+for ($i=1; $i<($numberTotalPlus); $i++){ 
+select ("Flow"+$i);
+expression -s "lifespan = rand(pCube1.particleSpeedOne,(pCube1.particleSpeedOne+pCube1.particleHeadVarySpeedBy));"  -o ("Flow"+$i) -ae 1 -uc all ;
+}
+}
+
+
+{
+
+for ($i=1; $i<($numberTotalPlus); $i++){
+setAttr (("Flow"+$i)+("_particleShape")+".particleRenderType") 4;
+};
+
+
+
+
+float $nT = `intSliderGrp -q -v sectionSlider`;
+float $nTP=$nT+1;
+for ($i=1; $i<($nTP); $i++){
+float $size = 20;
+float $rand1 = `getAttr "pCube1.particleRandomStringSize1"`;
+float $rand2 = `getAttr "pCube1.particleRandomStringSize2"`;
+float $randSize = ($size) * (rand($rand1,$rand2));
+setAttr (("Flow"+$i)+"_particle.scaleX") ($randSize);
+setAttr (("Flow"+$i)+"_particle.scaleY") ($randSize);
+setAttr (("Flow"+$i)+"_particle.scaleZ") ($randSize);
+}
+
+//This is old Head Speed Rand
+
+for ($i=1; $i<($numberTotalPlus); $i++){
+
+setAttr (("Flow"+$i)+"|ControlObjects.visibility") 0;
+}
+
+
+for ($i=1; $i<($numberTotalPlus); $i++){
+float $random = rand(1.5,3);
+setAttr (("Flow"+$i)+".emissionRate") $random;
+};
+
+
+
+for ($i=1; $i<($numberTotalPlus); $i++){
+float $random = rand(.05,.1);
+setAttr (("Flow"+$i)+".randomMotionSpeed") $random;
+};
+
+
+for ($i=1; $i<($numberTotalPlus); $i++){
+setAttr (("Flow"+$i)+".goalWeight") 1;
+};
+
+for ($i=1; $i<($numberTotalPlus); $i++){
+setAttr (("Flow"+$i)+"_particle.visibility") 1;
+};
+
+for ($i=1; $i<($numberTotalPlus); $i++){
+float $rand = rand(.1,.2);
+setAttr (("Flow"+$i)+"_scalableCircles|control_Circle_0.scaleX") ($rand);
+setAttr (("Flow"+$i)+"_scalableCircles|control_Circle_1.scaleX") ($rand);
+setAttr (("Flow"+$i)+"_scalableCircles|control_Circle_2.scaleX") ($rand);
+setAttr (("Flow"+$i)+"_scalableCircles|control_Circle_3.scaleX") ($rand);
+setAttr (("Flow"+$i)+"_scalableCircles|control_Circle_4.scaleX") ($rand);
+setAttr (("Flow"+$i)+"_scalableCircles|control_Circle_5.scaleX") ($rand);
+}
+
+}
+
+{
+
+for ($i=1; $i<($numberTotalPlus); $i++){
+addAttr -ln userScalar1PP -dt doubleArray (("Flow"+$i)+"_particleShape");
+addAttr -ln userScalar1PP0 -dt doubleArray (("Flow"+$i)+"_particleShape");
+}
+
+for ($i=1; $i<($numberTotalPlus); $i++){
+addAttr -ln "forIncanBiasValuePP0" -dt doubleArray (("Flow"+$i)+"_particleShape");
+addAttr -ln "forIncanBiasValuePP" -dt doubleArray (("Flow"+$i)+"_particleShape");
+setAttr -e-keyable true (("Flow"+$i)+("_particleShape")+".forIncanBiasValuePP");
+}
+
+}
+
+{
+
+shadingNode -asUtility particleSamplerInfo;
+connectAttr -f particleSamplerInfo1.userVector1PP fluidShape1.textureOrigin;
+connectAttr -f particleSamplerInfo1.userScalar1PP fluidShape1.incandescenceInputBias;
+for ($i=1; $i<($numberTotalPlus); $i++){
+arrayMapper -target (("Flow"+$i)+"_particleShape") -destAttr userScalar1PP -inputV ageNormalized -type ramp;
+}
+
+
+//disconecting it again
+disconnectAttr particleSamplerInfo1.userScalar1PP fluidShape1.incandescenceInputBias;
+disconnectAttr particleSamplerInfo1.userVector1PP fluidShape1.textureOrigin;
+
+select -r pCube1 ;
+addAttr -ln "forIncanMaxValue" -at double -dv 0;
+addAttr -ln "forIncanMinValue" -at double -dv 0;
+addAttr -ln "ExpressionFloat" -at double -dv 0;
+addAttr -ln "burnDistanceEffector" -at double -dv 0;
+
+setAttr "pCube1.forIncanMinValue" -.2;
+setAttr "pCube1.forIncanMaxValue" .8;
+setAttr "pCube1.ExpressionFloat" 1;
+setAttr "pCube1.burnDistanceEffector" 1;
+
+float $minValue = `getAttr "pCube1.forIncanMinValue"`;
+float $maxValue = `getAttr "pCube1.forIncanMaxValue"`;
+float $arrayValue = ($numberTotalPlus+$numberTotal);
+float $arrayMax = $arrayValue + $numberTotal;
+for ($i=$arrayValue; $i<$arrayMax; $i++){
+setAttr (("arrayMapper"+$i)+".minValue") ($minValue);
+setAttr (("arrayMapper"+$i)+".maxValue") ($maxValue);
+}
+
+for ($i=1; $i<($numberTotalPlus); $i++){
+select (("Flow"+$i)+"_particle");
+string $particleVar[] = `ls -sl`;
+dynExpression -s "//Flow###_particleShape.position\n\n \n//Look \n \nvector $locPos = <<locator1.translateX, locator1.translateY, locator1.translateZ>>; \n//vector $locPos2 = <<locator2.translateX, locator2.translateY, locator2.translateZ>>; \nvector $partPos = position;\n\n//Establish origin points of 0 0 0 \nfloat $pX2 = locator1.translateX;\nfloat $pY2 = locator1.translateY;\nfloat $pZ2 = locator1.translateZ;\n\n//particleShape1.rgbVPP \n\nfloat $pX1 = $partPos.x;\nfloat $pY1 = $partPos.y;\nfloat $pZ1 = $partPos.z;\n\n// Good thing to remember for finding average but not for this --------float $averagePos = ($pX2 + $pY2 + $pZ2)/3; \n \n//Use Distance equation of D = sqrt((x2-x1)squared + (y2-y1)squared + (z2-z1)squared) \n \n//------------For future coding reference going do the whole thing even though a value minus zero is the value itself. \n//------------But this could be helpful to have the code if the root isn't 0 0 0. \n//------------In fact perhaps you could create a locator and make it's position to be these values. You could \n//------------..then even animate the locator for furthering to push this effect. \n//------------Then perhaps a UI? \n \n//Get value of X Y Z from the equation listed above \nfloat $resultpX = $pX2 - $pX1; \nfloat $resultpY = $pY2 - $pY1; \nfloat $resultpZ = $pZ2 - $pZ1; \n\n//No continue with the equation and create variables to store the squared values of X Y Z \nfloat $squareX = $resultpX * $resultpX; \nfloat $squareY = $resultpY * $resultpY; \nfloat $squareZ = $resultpZ * $resultpZ; \n \n//Finish the equation \nfloat $ptDist = sqrt(($squareX) + ($squareY) + ($squareZ));\n\n//This next session is only for exponential scaling. We may need to do this in order to run the final line. This is optional artistic.\n//Exponential Increase distance between values so that fluid shader can read better\n//Also this math got a bit messy as I just kept it going while keeping an eye on the numeric values of the forIncanBiasValuePP. Just remember you can scratch this section and rework it all if needed\n//but keep in mind I was able to successfully exponentially scale the end and top values to have a greater distance between them. At first it was like.007 and .008 as the top and lowest value.\n//float $var = pow(float base, float exponent ) \nfloat $ptDist2 =($ptDist*$ptDist)*($ptDist*$ptDist)* ($ptDist*$ptDist)*($ptDist*$ptDist)* ($ptDist*$ptDist); \nfloat $ptDist3=$ptDist2/9000000; \n\n//RerunItAgainToSpreadItEvenMore\nfloat $ptDist4 =pow($ptDist3,3);\nfloat $ptDist5=$ptDist4/100000;\nfloat $ptDist6=$ptDist5/100;\n//Finish the equation\n\nforIncanBiasValuePP = (($ptDist3)/ pCube1.ExpressionFloat)/( pCube1.burnDistanceEffector);" -rad $particleVar;
+}
+
+
+for ($i=1; $i<($numberTotalPlus); $i++){
+select (("Flow"+$i)+"_particle");
+addAttr -ln "rgbPP" -dt vectorArray (("Flow"+$i)+"_particleShape");
+addAttr -ln "rgbPP0" -dt vectorArray (("Flow"+$i)+"_particleShape");
+arrayMapper -target (("Flow"+$i)+"_particleShape") -destAttr rgbPP -inputV ageNormalized -type ramp;
+}
+
+
+for ($i=1; $i<($numberTotalPlus); $i++){
+    setAttr (("ramp"+(($i+$numberTotalPlus)-1))+".colorEntryList[1].position") 1;
+    setAttr (("ramp"+(($i+$numberTotalPlus)-1))+".colorEntryList[1].color") -type double3 1 0.6656 0 ;
+    setAttr (("ramp"+(($i+$numberTotalPlus)-1))+".colorEntryList[2].position") 0.892128;
+    setAttr (("ramp"+(($i+$numberTotalPlus)-1))+".colorEntryList[2].color") -type double3 1 0.178 0 ;
+    setAttr (("ramp"+(($i+$numberTotalPlus)-1))+".colorEntryList[3].position") 0.650146;
+    setAttr (("ramp"+(($i+$numberTotalPlus)-1))+".colorEntryList[3].color") -type double3 0.002 0.000356 0 ;
+}
+
+
+
+for ($i=1; $i<($numberTotalPlus); $i++){
+connectAttr -force color1.outColor (("ramp"+(($i+$numberTotalPlus)-1))+".colorEntryList[1].color");
+connectAttr -force color2.outColor (("ramp"+(($i+$numberTotalPlus)-1))+".colorEntryList[2].color");
+connectAttr -force color3.outColor (("ramp"+(($i+$numberTotalPlus)-1))+".colorEntryList[3].color");
+}
+
+float $begHead = `intSliderGrp -q -v sectionSlider`;
+float $startAtHead = ($begHead + 1.0);
+//select -r ("ramp"+($startAtHead));
+for ($i=1; $i<($startAtHead); $i++){
+    //select -r ("ramp"+($startAtHead));
+    string $theCurrentRamp = ("ramp"+((($startAtHead-1))+$i));
+    //select -r (("ramp"+(($i+$startAtHead)-1));
+    expression -s "colorEntryList[1].position = AAA_masterIncanBurnBaby.colorEntryList[1].position;\ncolorEntryList[2].position = AAA_masterIncanBurnBaby.colorEntryList[2].position;\ncolorEntryList[3].position = AAA_masterIncanBurnBaby.colorEntryList[0].position;"  -o ($theCurrentRamp) -ae 1 -uc all ;
+}
+
+
+select -cl;
+for ($i=1; $i<($numberTotalPlus); $i++){
+select -add (("Flow"+$i)+"_particle");
+}
+
+
+sets -e -forceElement fluidShape1SG;
+
+
+shadingNode -asShader lambert;
+setAttr "lambert2.color" -type double3 0 0 0 ;
+setAttr "lambert2.matteOpacityMode" 0;
+select -r revolvedSurface1 ;
+rename lambert2 "blackHole" ;
+
+select -r revolvedSurface1 ;
+move -r 0 5.0 0 ;
+setAttr "revolvedSurface1.scaleZ" .35;
+setAttr "revolvedSurface1.scaleX" .35;
+setAttr "revolvedSurface1.scaleY" .575;
+
+select -r origCurve ;
+setAttr "origCurve.visibility" 0;
+
+select -cl;
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $vAdd = $v+1;
+for ($i=1; $i<$vAdd; $i++){
+select -r ("duplicatedCurve"+$i); 
+CenterPivot;
+
+setAttr "fluid1.visibility" 0;
+
+
+}
+}
+
+{  
+//***********************************************Arnold V2 Start***************************************************************************************************************
+
+select -r `listTransforms "-type nurbsCurve"`;
+select -d origCurve ;
+float $numberTotal = `intSliderGrp -q -v sectionSlider`;
+float $numberTotalPlus = $numberTotal+1;
+print($numberTotal);
+
+for ($i=1; $i<($numberTotalPlus); $i++){
+setAttr (("Flow"+$i)+"_particleShape.lifespanMode") 2;
+}
+
+for ($i=1; $i<($numberTotalPlus); $i++){
+    select -cl;
+    select -r i1 i2 i3 i4 i5 i6 i7 i8 i9 i10 i11 i12 i13 i14 i15 i16 i17 i18 i19 i20 i21 i22 i23 i24 i25 i26 i27 i28 i29 i30 i31 i32 i33 i34 i35 i36 i37 i38 i39 i40 i41 i42 i43 i44 i45 i46 i47 i48 i49 i50 i51 i52 i53 i54 i55 i56 i57 i58 i59 i60 i61 i62 i63 i64 i65 i66 i67 i68 i69 i70 i71 i72 i73 i74 i75 i76 i77 i78 i79 i80 i81 i82 i83 i84 i85 i86 i87 i88 i89 i90 i91 i92 i93 i94 i95 i96 i97 i98 i99 i100 i101 i102 i103 i104 i105 i106 i107 i108 i109 i110 i111 i112 i113 i114 i115 i116 i117 i118 i119 i120 i121 i122 i123 i124 i125 i126 i127 i128 i129 i130 i131 i132 i133 i134 i135 i136 i137 i138 i139 i140 i141 i142 i143 i144 i145 i146 i147 i148 i149 i150 i151 i152 i153 i154 i155 i156 i157 i158 i159 i160 i161 i162 i163 i164 i165 i166 i167 i168 i169 i170 i171 i172 i173 i174 i175 i176 i177 i178 i179 i180 i181 i182 i183 i184 i185 i186 i187 i188 i189 i190 i191 i192 i193 i194 i195 i196 i197 i198 i199 i200 i201 i202 i203 i204 i205 i206 i207 i208 i209 i210 i211 i212 i213 i214 i215 i216 i217 i218 i219 i220 i221 i222 i223 i224 i225 i226 i227 i228 i229 i230 i231 i232 i233 i234 i235 i236 i237 i238 i239 i240 i241 i242 i243 i244 i245 i246 i247 i248 i249 i250 i251 i252 i253 i254 i255 i256 i257 i258 i259 i260 i261 i262 i263 i264 i265 i266 i267 i268 i269 i270 i271 i272 i273 i274 i275 i276 i277 i278 i279 i280 i281 i282 i283 i284 i285 i286 i287 i288 i289 i290 i291 i292 i293 i294 i295 i296 i297 i298 i299 ;
+    select -add (("Flow"+$i)+"_particle") ;
+    particleInstancer  -addObject -object  i1 -object  i2 -object  i3 -object  i4 -object  i5 -object  i6 -object  i7 -object  i8 -object  i9 -object  i10 -object  i11 -object  i12 -object  i13 -object  i14 -object  i15 -object  i16 -object  i17 -object  i18 -object  i19 -object  i20 -object  i21 -object  i22 -object  i23 -object  i24 -object  i25 -object  i26 -object  i27 -object  i28 -object  i29 -object  i30 -object  i31 -object  i32 -object  i33 -object  i34 -object  i35 -object  i36 -object  i37 -object  i38 -object  i39 -object  i40 -object  i41 -object  i42 -object  i43 -object  i44 -object  i45 -object  i46 -object  i47 -object  i48 -object  i49 -object  i50 -object  i51 -object  i52 -object  i53 -object  i54 -object  i55 -object  i56 -object  i57 -object  i58 -object  i59 -object  i60 -object  i61 -object  i62 -object  i63 -object  i64 -object  i65 -object  i66 -object  i67 -object  i68 -object  i69 -object  i70 -object  i71 -object  i72 -object  i73 -object  i74 -object  i75 -object  i76 -object  i77 -object  i78 -object  i79 -object  i80 -object  i81 -object  i82 -object  i83 -object  i84 -object  i85 -object  i86 -object  i87 -object  i88 -object  i89 -object  i90 -object  i91 -object  i92 -object  i93 -object  i94 -object  i95 -object  i96 -object  i97 -object  i98 -object  i99 -object  i100 -object  i101 -object  i102 -object  i103 -object  i104 -object  i105 -object  i106 -object  i107 -object  i108 -object  i109 -object  i110 -object  i111 -object  i112 -object  i113 -object  i114 -object  i115 -object  i116 -object  i117 -object  i118 -object  i119 -object  i120 -object  i121 -object  i122 -object  i123 -object  i124 -object  i125 -object  i126 -object  i127 -object  i128 -object  i129 -object  i130 -object  i131 -object  i132 -object  i133 -object  i134 -object  i135 -object  i136 -object  i137 -object  i138 -object  i139 -object  i140 -object  i141 -object  i142 -object  i143 -object  i144 -object  i145 -object  i146 -object  i147 -object  i148 -object  i149 -object  i150 -object  i151 -object  i152 -object  i153 -object  i154 -object  i155 -object  i156 -object  i157 -object  i158 -object  i159 -object  i160 -object  i161 -object  i162 -object  i163 -object  i164 -object  i165 -object  i166 -object  i167 -object  i168 -object  i169 -object  i170 -object  i171 -object  i172 -object  i173 -object  i174 -object  i175 -object  i176 -object  i177 -object  i178 -object  i179 -object  i180 -object  i181 -object  i182 -object  i183 -object  i184 -object  i185 -object  i186 -object  i187 -object  i188 -object  i189 -object  i190 -object  i191 -object  i192 -object  i193 -object  i194 -object  i195 -object  i196 -object  i197 -object  i198 -object  i199 -object  i200 -object  i201 -object  i202 -object  i203 -object  i204 -object  i205 -object  i206 -object  i207 -object  i208 -object  i209 -object  i210 -object  i211 -object  i212 -object  i213 -object  i214 -object  i215 -object  i216 -object  i217 -object  i218 -object  i219 -object  i220 -object  i221 -object  i222 -object  i223 -object  i224 -object  i225 -object  i226 -object  i227 -object  i228 -object  i229 -object  i230 -object  i231 -object  i232 -object  i233 -object  i234 -object  i235 -object  i236 -object  i237 -object  i238 -object  i239 -object  i240 -object  i241 -object  i242 -object  i243 -object  i244 -object  i245 -object  i246 -object  i247 -object  i248 -object  i249 -object  i250 -object  i251 -object  i252 -object  i253 -object  i254 -object  i255 -object  i256 -object  i257 -object  i258 -object  i259 -object  i260 -object  i261 -object  i262 -object  i263 -object  i264 -object  i265 -object  i266 -object  i267 -object  i268 -object  i269 -object  i270 -object  i271 -object  i272 -object  i273 -object  i274 -object  i275 -object  i276 -object  i277 -object  i278 -object  i279 -object  i280 -object  i281 -object  i282 -object  i283 -object  i284 -object  i285 -object  i286 -object  i287 -object  i288 -object  i289 -object  i290 -object  i291 -object  i292 -object  i293 -object  i294 -object  i295 -object  i296 -object  i297 -object  i298 -object  i299 -object  Flow1_particle -cycle Sequential -cycleStep 1 -cycleStepUnits Frames -levelOfDetail Geometry -rotationUnits Degrees -rotationOrder XYZ -position worldPosition -age age (("Flow"+$i)+"_particleShape");
+    //setAttr (("instancer"+$i).visibility") 0;
+    setAttr (("instancer"+$i)+".visibility") 0;
+    select -cl;
+}
+
+for ($i=1; $i<($numberTotalPlus); $i++){    
+    select -add ("instancer"+$i);
+    doGroup 0 1 1;
+    rename "group1" "headInstances";
+}
+
+//create rand rotation and random scale
+for ($i=1; $i<($numberTotalPlus); $i++){
+    //string $scl = (("Flow"+$i)+"_particleShape");
+    //particleInstancer -e -name ("instancer"+$i) -scale randScaleInst $scl;
+    particleInstancer -e -name ("instancer"+$i) -scale randScaleInst (("Flow"+$i)+"_particleShape");
+    particleInstancer -e -name ("instancer"+$i) -rotation randRotInst (("Flow"+$i)+"_particleShape");
+}
+
+particleInstancer -e -name instancer1 -scale randScaleInst Flow1_particleShape;
+particleInstancer -e -name instancer1 -rotation randRotInst Flow1_particleShape;
+
+for ($i=1; $i<($numberTotalPlus); $i++){
+    addAttr -ln "ageRamp"  -dt doubleArray  (("Flow"+$i)+"_particleShape");
+    //setAttr -e-keyable true (("Flow"+$i)+"_particleShape.ageRamp");
+    arrayMapper -target (("Flow"+$i)+"_particleShape") -destAttr ageRamp -inputV ageNormalized -type ramp;
+    particleInstancer -e -name ("instancer"+$i) -age ageRamp (("Flow"+$i)+"_particleShape");
+}
+
+//Setup the array mappers & Ramp for the burn and parent them to one parent for both array maper and ramp
+
+//set ramp black and white positions
+setAttr "AAA_masterIncanBurnBaby.colorEntryList[0].position" 0;
+removeMultiInstance -break true AAA_masterIncanBurnBaby.colorEntryList[2];
+setAttr "color1.inColor" -type double3 1 1 1 ;
+
+select -cl;
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $s = `intSliderGrp -q -v bodySection`;
+float $array = ($v*4)+1;
+float $endArray = ($v*5)+1;
+float $endArrayPlus = $endArray + 1;
+float $v2= $v+1;
+float $tP= $v2+$s;
+float $startIt = (($v*2)+1);
+float $endIt = ($startIt+$v);
+
+//set arrays
+for ($i=$array; $i<$endArray; $i++){
+    string $currentAMapper = ("arrayMapper"+$i);
+    expression -s "minValue = pCube1.arrayStart;"  -o ($currentAMapper) -ae 1 -uc all ;
+    expression -s "maxValue = pCube1.arrayEnd;"  -o ($currentAMapper) -ae 1 -uc all ;
+}
+addAttr -ln "arrayMin"  -at double  -dv 0 AAA_masterIncanBurnBaby;
+addAttr -ln "arrayMax"  -at double  -dv 0 AAA_masterIncanBurnBaby;
+setAttr "AAA_masterIncanBurnBaby.arrayMin" 5;
+expression -s "pCube1.arrayStart = AAA_masterIncanBurnBaby.arrayMin;"  -o pCube1 -ae 1 -uc all ;
+expression -s "pCube1.arrayEnd = AAA_masterIncanBurnBaby.arrayMax;"  -o pCube1 -ae 1 -uc all ;
+
+//***********************************************Arnold V2 End***************************************************************************************************************
+for ($i=1; $i<($numberTotalPlus); $i++){ 
+setAttr (("Flow"+$i)+"_particleShape.aiExportAttributes") -type "string" "rgbPP";
+//setAttr "Flow1_particleShape.aiExportAttributes" -type "string" "rgbPP";
+setAttr (("instancer"+$i)+".levelOfDetail") 2;
+setAttr (("instancer"+$i)+".lodVisibility") 1;
+}
+
+float $initNum = `intSliderGrp -q -v sectionSlider`;
+float $inP = $initNum+1;
+setAttr "fluid1.visibility" 0;
+
+for ($i=1; $i<($inP); $i++){ 
+select -r (("Flow"+$i)+"_particleShape");
+particleInstancer -e -name ("instancer"+$i) -objectIndex randId (("Flow"+$i)+"_particleShape");
+}
+
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $s = `intSliderGrp -q -v bodySection`;
+float $array = ($v*4)+1;
+float $v2= $v+1;
+float $tP= $v2+$s;
+float $startIt = (($v*2)+1);
+float $endIt = ($startIt+$v);
+
+
+//select -r ("ramp"+($startAtHead));
+for ($i=$startIt; $i<($endIt); $i++){
+    //select -r ("ramp"+($startAtHead));
+    string $theCurrentRamp = ("ramp"+$i);
+    //select -r (("ramp"+(($i+$startAtHead)-1));
+    expression -s "colorEntryList[0].position = AAA_masterIncanBurnBaby.colorEntryList[0].position;"  -o ($theCurrentRamp) -ae 1 -uc all ;
+    expression -s "colorEntryList[1].position = AAA_masterIncanBurnBaby.colorEntryList[1].position;"  -o ($theCurrentRamp) -ae 1 -uc all ;
+    setAttr (("ramp"+$i)+".colorEntryList[0].color") -type double3 0 0 0 ;
+    setAttr (("ramp"+$i)+".colorEntryList[1].color") -type double3 1 1 1 ;
+
+}
+
+}
+
+{
+float $pp = `intSliderGrp -q -v sectionSlider`;
+float $pp1 = $pp+1;
+select -cl;
+for ($i=1; $i<$pp1; $i++){ 
+select (("Flow"+$i)+"_particle");
+expression -s "scaleX = pCube1.particleScale/2.5;"  -o (("Flow"+$i)+"_particle") -ae 1 -uc all ;
+expression -s "scaleY = pCube1.particleScale/2.5;"  -o (("Flow"+$i)+"_particle") -ae 1 -uc all ;
+expression -s "scaleZ = pCube1.particleScale/2.5;"  -o (("Flow"+$i)+"_particle") -ae 1 -uc all ;
+}
+/*
+for ($i=1; $i<5; $i++){
+expression -s "scaleX = pCube1.particleScale/750;"  -o ("fluid"+$i) -ae 1 -uc all ;
+expression -s "scaleY = pCube1.particleScale/750;"  -o ("fluid"+$i) -ae 1 -uc all ;
+expression -s "scaleZ = pCube1.particleScale/750;"  -o ("fluid"+$i) -ae 1 -uc all ;
+}*/
+
+//pCube1.initialNumber
+float $nC = `intSliderGrp -q -v sectionSlider`;
+int $numTest = $nC + 1;
+for ($i=1; $i<($numTest); $i++){ 
+select (("Flow"+$i)+"_particle");
+particleInstancer -e -name ("instancer"+$i) -scale randScaleInst (("Flow"+$i)+"_particleShape");
+particleInstancer -e -name ("instancer"+$i) -rotation randRotInst (("Flow"+$i)+"_particleShape");
+}
+
+//Cloud Particles Scale
+for($i=1; $i<300; $i++){
+    string $currentI = ("i"+$i);
+    expression -s "scaleX = ((Flow1_particle.scaleX/140)/2)*.9;"  -o ($currentI) -ae 1 -uc all ;
+    expression -s "scaleY = ((Flow1_particle.scaleY/140)/2)*.9;"  -o ($currentI) -ae 1 -uc all ;
+    expression -s "scaleZ = ((Flow1_particle.scaleZ/140)/2)*.9;"  -o ($currentI) -ae 1 -uc all ;
+    
+}
+
+}
+
+}
+
+global proc setPrtlDispPack(){
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $s = `intSliderGrp -q -v bodySection`;
+float $array = ($v*4)+1;
+float $v2= $v+1;
+float $tP= $v2+$s;
+float $startIt = (($v*2)+1);
+float $endIt = ($startIt+$v);
+
+for($i=1; $i<$endIt; $i++){
+    setAttr (("instancer"+$i)+".levelOfDetail") 2;
+}
+
+}
+
+global proc setPrtlDispFull(){
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $s = `intSliderGrp -q -v bodySection`;
+float $array = ($v*4)+1;
+float $v2= $v+1;
+float $tP= $v2+$s;
+float $startIt = (($v*2)+1);
+float $endIt = ($startIt+$v);
+
+for($i=1; $i<$endIt; $i++){
+    setAttr (("instancer"+$i)+".levelOfDetail") 0;
+}
+
+}
+
+global proc func2() { 
+float $particleSpeedOne = `getAttr "pCube1.particleSpeedOne"`;
+float $particleSpeedTwo = `getAttr "pCube1.particleSpeedTwo"`;
+float $ppSpd = `intSliderGrp -q -v sectionSlider`;
+float $ppSpd1 = $ppSpd+1;
+select -cl;
+
+//This was Head LifeSpan
+/*
+for ($i=1; $i<$ppSpd1; $i++){ 
+float $random = rand($particleSpeedOne,$particleSpeedTwo);
+setAttr (("Flow"+$i)+".lifespan") $random;
+}
+*/
+
+float $emissionRateOne = `getAttr "pCube1.emissionRateOne"`;
+float $emissionRateTwo = `getAttr "pCube1.emissionRateTwo"`;
+float $eR1 = `intSliderGrp -q -v sectionSlider`;
+float $eR2 = $eR1+1;
+select -cl;
+for ($i=1; $i<$eR2; $i++){ 
+float $randomDos = rand($emissionRateOne,$emissionRateTwo);
+setAttr (("Flow"+$i)+".emissionRate") $randomDos;
+}
+
+//This was old particle scale
+/*
+float $particleScale = `getAttr "pCube1.particleScale"`;
+float $pp = `intSliderGrp -q -v sectionSlider`;
+float $pp1 = $pp+1;
+select -cl;
+for ($i=1; $i<$pp1; $i++){ 
+float $particleScaleRand = ($particleScale)*(rand(.5,1));
+select -r(("Flow"+$i)+"_particle");
+setAttr (("Flow"+$i)+"_particle.scaleX") ($particleScaleRand);
+setAttr (("Flow"+$i)+"_particle.scaleY") ($particleScaleRand);
+setAttr (("Flow"+$i)+"_particle.scaleZ") ($particleScaleRand);
+}
+*/
+
+float $numberTotalPlus = `intSliderGrp -q -v sectionSlider`;
+for ($i=1; $i<($numberTotalPlus); $i++){
+float $size = 20;
+float $rand1 = `getAttr "pCube1.particleRandomStringSize1"`;
+float $rand2 = `getAttr "pCube1.particleRandomStringSize2"`;
+float $randSize = ($size) * (rand($rand1,$rand2));
+select -r ("duplicatedCurve"+$i);
+setAttr (("duplicatedCurve"+$i)+".scaleX") (rand($rand1,$rand2));
+setAttr (("duplicatedCurve"+$i)+".scaleY") (rand($rand1,$rand2));
+setAttr (("duplicatedCurve"+$i)+".scaleZ") (rand($rand1,$rand2));
+
+}
+
+
+}
+
+
+global proc func6() { 
+float $nC = `intSliderGrp -q -v sectionSlider`;
+float $nC1 = $nC+1;
+select -cl;
+for ($i=1; $i<$nC1; $i++){ 
+setAttr (("Flow"+$i)+"_particle.visibility") 1;
+}
+float $nC = `intSliderGrp -q -v sectionSlider`;
+float $nC1 = $nC+1;
+select -cl;
+for ($i=1; $i<$nC1; $i++){
+    setAttr (("instancer"+$i)+".visibility") 0;
+}
+}
+
+global proc func7() { 
+float $nC = `intSliderGrp -q -v sectionSlider`;
+float $nC1 = $nC+1;
+select -cl;
+for ($i=1; $i<$nC1; $i++){ 
+    setAttr (("Flow"+$i)+"_particle.visibility") 0;
+    select -add (("Flow"+$i)+"_particle");
+}
+sets -e -forceElement initialShadingGroup;
+
+float $nC = `intSliderGrp -q -v sectionSlider`;
+float $nC1 = $nC+1;
+select -cl;
+for ($i=1; $i<$nC1; $i++){
+    setAttr (("instancer"+$i)+".visibility") 1;
+}
+}
+
+
+global proc func10() { 
+select -cl;
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $s = `intSliderGrp -q -v bodySection`;
+float $v2= $v+1;
+float $tP= $v2+$s;
+select -cl;
+for ($i=$v2; $i<$tP; $i++){ 
+setAttr (("Flow"+$i)+"_particle.visibility") 1;
+setAttr (("instancer"+$i)+".visibility") 0;
+
+}
+
+}
+
+global proc func11() { 
+select -cl;
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $s = `intSliderGrp -q -v bodySection`;
+float $v2= $v+1;
+float $tP= $v2+$s;
+select -cl;
+for ($i=$v2; $i<$tP; $i++){ 
+    setAttr (("Flow"+$i)+"_particle.visibility") 0;
+    setAttr (("instancer"+$i)+".visibility") 1;
+    select -add (("Flow"+$i)+"_particle");
+}
+sets -e -forceElement initialShadingGroup;
+
+}
+
+global proc func8() {
+cylinder -p 0 0 0 -ax 0 1 0 -ssw 0 -esw 360 -r 1 -hr 2 -d 3 -ut 0 -tol 0.01 -s 8 -nsp 1 -ch 1; 
+select -r nurbsCylinder1 ;
+setAttr "makeNurbCylinder1.spans" 25;
+scale -r 1 2.099889 1 ;
+move -r 0 1.589364 0 ;
+scale -r 1 1.069724 1 ;
+select -r nurbsCylinder1.v[0] ;
+duplicateCurveToolScript 4;
+select -r nurbsCylinder1 ;
+setAttr "nurbsCylinder1.visibility" 0;
+
+
+float $s = `intSliderGrp -q -v bodySection`;
+float $v = `intSliderGrp -q -v sectionSlider`;
+
+
+select -r ("duplicatedCurve"+($v+1));
+rename "bodyCurve";
+revolve -ch 1 -po 0 -rn 0 -ssw 0 -esw 360 -ut 0 -tol 0.01 -degree 3 -s ($s) -ulp 1 -ax 0 1 0 "bodyCurve";
+
+
+select -r bodyCurve;
+setAttr "bodyCurve.visibility" 0;
+
+select -cl;
+string $nurbeCyl="revolvedSurface2";
+select -r nurbsCylinder1 ;
+doDelete;
+
+
+string $surfaceInfo = `createNode surfaceInfo`;
+connectAttr -f ("revolvedSurface2.worldSpace") (($surfaceInfo)+".inputSurface");
+
+
+float $isoVertical[] = `getAttr ($surfaceInfo+".knotsV")`;
+float $numOfVerts = size($isoVertical);
+
+select -cl;
+
+for ($i=0; $i<($numOfVerts+1); $i++){ 
+float $oneByOne = $isoVertical[$i];
+select -tgl revolvedSurface2.v[$oneByOne] ;
+}
+
+
+duplicateCurveToolScript 4;
+
+
+delete $surfaceInfo;
+
+
+doGroup 0 1 1;
+
+rename "group1" "bodyCurvesGroup";
+createDisplayLayer -name "bodyCurvesLayer_" -number 1 -nr;
+
+float $s = `intSliderGrp -q -v bodySection`;
+
+float $numberBodyTotal = $s;
+
+expression -s "pCube1.curveNumberBody = $numberBodyTotal;" -o pCube1 -ae 1 -uc all ;
+expression -s "pCube1.curveNumberBodyPlus = pCube1.curveNumberBody+1;" -o pCube1 -ae 1 -uc all ;
+float $numberBodyTotalPlus = $numberBodyTotal+1;
+
+
+
+{
+
+select -cl;
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $s = `intSliderGrp -q -v bodySection`;
+float $v2= $v+1;
+float $tP= $v2+$s;
+for ($i=$v2; $i<($tP); $i++){
+select -r ("duplicatedCurve"+$i); 
+CurveFlow;
+}
+}
+
+{
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $v1=$v+1;
+select -r (("duplicatedCurve")+($v1));
+CurveFlow;
+}
+
+
+{
+
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $s = `intSliderGrp -q -v bodySection`;
+float $bV = $v+1;
+float $totalAnd = $v+$s;
+
+select -cl;
+select Flow;
+for ($i=$bV; $i<($totalAnd); $i++){
+select -tgl (("Flow")+($i));
+}
+doGroup 0 1 1;
+rename "group1" "BodyFlowGroup";
+createDisplayLayer -name "BodyFlowGroupLayer" -number 1 -nr;
+}
+
+select -r |superDuplicatedCurve1 ;
+select -r |superDuplicatedCurve1 Flow_particle Flow_emitter |Flow_goal |Flow_locator_0_0 |SelectionLocator |control_Circle_0 |Flow_circle_0_0 ;
+doGroup 0 1 1;
+select -r group1;
+doDelete;
+
+
+
+
+select -cl;
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $s = `intSliderGrp -q -v bodySection`;
+float $v2= $v+1;
+float $tP= $v2+$s;
+for ($i=$v2; $i<($tP); $i++){
+addAttr -ln radiusPP -dt doubleArray (("Flow"+$i)+"_particleShape");
+addAttr -ln radiusPP0 -dt doubleArray (("Flow"+$i)+"_particleShape");
+}
+
+
+select -cl;
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $s = `intSliderGrp -q -v bodySection`;
+float $v2= $v+1;
+float $tP= $v2+$s;
+for ($i=$v2; $i<($tP); $i++){
+addAttr -ln userVector1PP -dt vectorArray (("Flow"+$i)+"_particleShape");
+addAttr -ln userVector1PP0 -dt vectorArray (("Flow"+$i)+"_particleShape");
+}
+
+
+select -cl;
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $s = `intSliderGrp -q -v bodySection`;
+float $v2= $v+1;
+float $tP= $v2+$s;
+for ($i=$v2; $i<($tP); $i++){
+    select (("Flow"+$i)+"_particle");
+    string $particleVar[] = `ls -sl`;
+    addAttr -ln "randScaleInst0"  -dt vectorArray  (("Flow"+$i)+"_particleShape");
+    addAttr -ln "randScaleInst"  -dt vectorArray  (("Flow"+$i)+"_particleShape");
+    setAttr -e-keyable true (("Flow"+$i)+"_particleShape.randScaleInst");
+    
+
+    addAttr -ln "randRotInst0"  -dt vectorArray  (("Flow"+$i)+"_particleShape");
+    addAttr -ln "randRotInst"  -dt vectorArray  (("Flow"+$i)+"_particleShape");
+    setAttr -e-keyable true (("Flow"+$i)+"_particleShape.randRotInst");
+}
+
+select -cl;
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $s = `intSliderGrp -q -v bodySection`;
+float $v2= $v+1;
+float $tP= $v2+$s;
+float $startIt = (($v*2)+1);
+float $endIt = ($startIt+$s);
+
+
+
+for ($i=$v2; $i<($tP); $i++){
+select (("Flow"+$i)+"_particle");
+string $particleVar[] = `ls -sl`;
+
+addAttr -ln "randId"  -dt doubleArray (("Flow"+$i)+"_particleShape");
+setAttr -e-keyable true (("Flow"+$i)+"_particleShape.randId");
+
+
+dynExpression -s "//Mine\n$bodyRandU = (pCube1.bodyRandU/pCube1.RandUBodyMult)*1.05;\n$bodyRandV = (pCube1.bodyRandV/pCube1.RandVBodyMult)*1.05;\nradiusPP = rand($bodyRandU,$bodyRandV);\n//TextureOrigin\nuserVector1PP = sphrand(20);\n\n//newArnoldVer\nrandScaleInst = rand(.5, 1.5);\nrandRotInst = rand(360);\nrandId = rand(5,8);\n\n\n\n\n//Theirs\ngoalPP = 0;\nvector $idVector = particleId;\nvector $randomPosition = dnoise( $idVector * 10.0 ) * 100.0;\nrandomPosition = $randomPosition;\nfloat $randomMotionSpeed = randomMotionSpeed;\nfloat $maxDistance = maxDistance;\nvector $curveOffset =\n dnoise( $randomPosition + ( time * $randomMotionSpeed ) ) *\n $maxDistance;\nvector $rampValues = rampValues;\ncurveOffset =\n curveOffset;\ngoalOffset =\n $rampValues + $curveOffset;" -c $particleVar;
+}
+
+
+for ($i=$v2; $i<($tP); $i++){
+select (("Flow"+$i)+"_particle");
+addAttr -ln "rgbPP" -dt vectorArray (("Flow"+$i)+"_particleShape");
+addAttr -ln "rgbPP0" -dt vectorArray (("Flow"+$i)+"_particleShape");
+arrayMapper -target (("Flow"+$i)+"_particleShape") -destAttr rgbPP -inputV ageNormalized -type ramp;
+}
+
+/*
+for ($i=$startIt; $i<($endIt); $i++){
+setAttr (("ramp"+$i)+".colorEntryList[1].position") 1;
+setAttr (("ramp"+$i)+".colorEntryList[1].color") -type double3 1 0.6656 0 ;
+setAttr (("ramp"+$i)+".colorEntryList[2].position") 0.892128;
+setAttr (("ramp"+$i)+".colorEntryList[2].color") -type double3 1 0.178 0 ;
+setAttr (("ramp"+$i)+".colorEntryList[3].position") 0.650146;
+setAttr (("ramp"+$i)+".colorEntryList[3].color") -type double3 0.002 0.000356 0 ;
+   
+    
+
+
+for ($i=$startIt; $i<($endIt); $i++){
+connectAttr -force color1.outColor (("ramp"+$i)+".colorEntryList[1].color");
+connectAttr -force color2.outColor (("ramp"+$i)+".colorEntryList[2].color");
+connectAttr -force color3.outColor (("ramp"+$i)+".colorEntryList[3].color");
+}
+
+
+select -cl;
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $s = `intSliderGrp -q -v bodySection`;
+float $v2= $v+1;
+float $tP= $v2+$s;
+float $startIt = (($v*2)+1);
+float $endIt = ($startIt+$s);
+
+//select -r ("ramp"+($startAtHead));
+for ($i=$startIt; $i<($endIt); $i++){
+    //select -r ("ramp"+($startAtHead));
+    string $theCurrentRamp = ("ramp"+$i);
+    //select -r (("ramp"+(($i+$startAtHead)-1));
+    expression -s "colorEntryList[1].position = BBB_masterIncanBurnBaby.colorEntryList[1].position;\ncolorEntryList[2].position = BBB_masterIncanBurnBaby.colorEntryList[2].position;\ncolorEntryList[3].position = BBB_masterIncanBurnBaby.colorEntryList[0].position;"  -o ($theCurrentRamp) -ae 1 -uc all ;
+}*/
+
+
+
+
+for ($i=$v2; $i<($tP); $i++){
+select ("Flow"+$i);
+expression -s "lifespan = rand(pCube1.bodySpeedOne,(pCube1.bodySpeedOne+pCube1.particleBodyVarySpeedBy));"  -o ("Flow"+$i) -ae 1 -uc all ;
+}
+
+
+
+
+select -cl;
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $s = `intSliderGrp -q -v bodySection`;
+float $v2= $v+1;
+float $tP= $v2+$s;
+for ($i=$v2; $i<($tP); $i++){
+setAttr (("Flow"+$i)+("_particleShape")+".particleRenderType") 4;
+};
+
+
+select -cl;
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $s = `intSliderGrp -q -v bodySection`;
+float $v2= $v+1;
+float $tP= $v2+$s;
+for ($i=$v2; $i<($tP); $i++){
+float $size = 20;
+setAttr (("Flow"+$i)+"_particle.scaleX") ($size);
+setAttr (("Flow"+$i)+"_particle.scaleY") ($size);
+setAttr (("Flow"+$i)+"_particle.scaleZ") ($size);
+}
+
+select -cl;
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $s = `intSliderGrp -q -v bodySection`;
+float $v2= $v+1;
+float $tP= $v2+$s;
+
+//This is old bodyLifeSpanRand
+/*
+for ($i=$v2; $i<($tP); $i++){
+float $random = rand(27,30);
+setAttr (("Flow"+$i)+".lifespan") $random;
+};
+*/
+//setting bunch of float group variables
+select -cl;
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $s = `intSliderGrp -q -v bodySection`;
+float $v2= $v+1;
+float $tP= $v2+$s;
+for ($i=$v2; $i<($tP); $i++){
+
+setAttr (("Flow"+$i)+"|ControlObjects.visibility") 0;
+}
+
+
+select -cl;
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $s = `intSliderGrp -q -v bodySection`;
+float $v2= $v+1;
+float $tP= $v2+$s;
+for ($i=$v2; $i<($tP); $i++){
+float $random = rand(1.5,3);
+setAttr (("Flow"+$i)+".emissionRate") $random;
+};
+
+
+select -cl;
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $s = `intSliderGrp -q -v bodySection`;
+float $v2= $v+1;
+float $tP= $v2+$s;
+for ($i=$v2; $i<($tP); $i++){
+float $random = rand(.05,.1);
+setAttr (("Flow"+$i)+".randomMotionSpeed") $random;
+};
+
+
+select -cl;
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $s = `intSliderGrp -q -v bodySection`;
+float $v2= $v+1;
+float $tP= $v2+$s;
+for ($i=$v2; $i<($tP); $i++){
+setAttr (("Flow"+$i)+".goalWeight") 1;
+};
+
+
+select -cl;
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $s = `intSliderGrp -q -v bodySection`;
+float $v2= $v+1;
+float $tP= $v2+$s;
+for ($i=$v2; $i<($tP); $i++){
+setAttr (("Flow"+$i)+"_particle.visibility") 1;
+};
+
+
+select -cl;
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $s = `intSliderGrp -q -v bodySection`;
+float $s2 = $s+6;
+float $v2= $v+1;
+float $tP= $v2+$s;
+for ($i=6; $i<($s2); $i++){
+rename (("control_Circle_")+$i) "control_Circle_0";
+}
+
+
+select -cl;
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $s = `intSliderGrp -q -v bodySection`;
+float $sV=$v+$s;
+string $parentToGroup = ("Flow"+$sV);
+parent ($parentToGroup) BodyFlowGroup;
+
+
+select -cl;
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $s = `intSliderGrp -q -v bodySection`;
+float $v2= $v+1;
+float $tP= $v2+$s;
+for ($i=$v2; $i<($tP); $i++){
+float $rand = rand(.1,.2);
+setAttr (("Flow"+$i)+"_scalableCircles|control_Circle_0.scaleX") ($rand);
+setAttr (("Flow"+$i)+"_scalableCircles|control_Circle_1.scaleX") ($rand);
+setAttr (("Flow"+$i)+"_scalableCircles|control_Circle_2.scaleX") ($rand);
+setAttr (("Flow"+$i)+"_scalableCircles|control_Circle_3.scaleX") ($rand);
+setAttr (("Flow"+$i)+"_scalableCircles|control_Circle_4.scaleX") ($rand);
+setAttr (("Flow"+$i)+"_scalableCircles|control_Circle_5.scaleX") ($rand);
+}
+
+
+//Add bunch of Flow particle shape Attributes
+{
+
+select -cl;
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $s = `intSliderGrp -q -v bodySection`;
+float $v2= $v+1;
+float $tP= $v2+$s;
+for ($i=$v2; $i<($tP); $i++){
+    addAttr -ln userScalar1PP -dt doubleArray (("Flow"+$i)+"_particleShape");
+    addAttr -ln userScalar1PP0 -dt doubleArray (("Flow"+$i)+"_particleShape");
+}
+
+
+select -cl;
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $s = `intSliderGrp -q -v bodySection`;
+float $v2= $v+1;
+float $tP= $v2+$s;
+for ($i=$v2; $i<($tP); $i++){
+addAttr -ln "forIncanBiasValuePP0" -dt doubleArray (("Flow"+$i)+"_particleShape");
+addAttr -ln "forIncanBiasValuePP" -dt doubleArray (("Flow"+$i)+"_particleShape");
+setAttr -e-keyable true (("Flow"+$i)+("_particleShape")+".forIncanBiasValuePP");
+}
+}
+
+
+select -cl;
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $s = `intSliderGrp -q -v bodySection`;
+float $v2= $v+1;
+float $tP= $v2+$s;
+for ($i=$v2; $i<($tP); $i++){
+    arrayMapper -target (("Flow"+$i)+"_particleShape") -destAttr userScalar1PP -inputV ageNormalized -type ramp;
+}
+
+select -cl;
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $s = `intSliderGrp -q -v bodySection`;
+float $v2= $v+1;
+float $tP= $v2+$s;
+for ($i=$v2; $i<($tP); $i++){
+select (("Flow"+$i)+"_particle");
+string $particleVar[] = `ls -sl`;
+dynExpression -s "//Flow###_particleShape.position\n\n \n//Look \n \nvector $locPos = <<locator1.translateX, locator1.translateY, locator1.translateZ>>; \n//vector $locPos2 = <<locator2.translateX, locator2.translateY, locator2.translateZ>>; \nvector $partPos = position;\n\n//Establish origin points of 0 0 0 \nfloat $pX2 = locator1.translateX;\nfloat $pY2 = locator1.translateY;\nfloat $pZ2 = locator1.translateZ;\n\n//particleShape1.rgbVPP \n\nfloat $pX1 = $partPos.x;\nfloat $pY1 = $partPos.y;\nfloat $pZ1 = $partPos.z;\n\n// Good thing to remember for finding average but not for this --------float $averagePos = ($pX2 + $pY2 + $pZ2)/3; \n \n//Use Distance equation of D = sqrt((x2-x1)squared + (y2-y1)squared + (z2-z1)squared) \n \n//------------For future coding reference going do the whole thing even though a value minus zero is the value itself. \n//------------But this could be helpful to have the code if the root isn't 0 0 0. \n//------------In fact perhaps you could create a locator and make it's position to be these values. You could \n//------------..then even animate the locator for furthering to push this effect. \n//------------Then perhaps a UI? \n \n//Get value of X Y Z from the equation listed above \nfloat $resultpX = $pX2 - $pX1; \nfloat $resultpY = $pY2 - $pY1; \nfloat $resultpZ = $pZ2 - $pZ1; \n\n//No continue with the equation and create variables to store the squared values of X Y Z \nfloat $squareX = $resultpX * $resultpX; \nfloat $squareY = $resultpY * $resultpY; \nfloat $squareZ = $resultpZ * $resultpZ; \n \n//Finish the equation \nfloat $ptDist = sqrt(($squareX) + ($squareY) + ($squareZ));\n\n//This next session is only for exponential scaling. We may need to do this in order to run the final line. This is optional artistic.\n//Exponential Increase distance between values so that fluid shader can read better\n//Also this math got a bit messy as I just kept it going while keeping an eye on the numeric values of the forIncanBiasValuePP. Just remember you can scratch this section and rework it all if needed\n//but keep in mind I was able to successfully exponentially scale the end and top values to have a greater distance between them. At first it was like.007 and .008 as the top and lowest value.\n//float $var = pow(float base, float exponent ) \nfloat $ptDist2 =($ptDist*$ptDist)*($ptDist*$ptDist)* ($ptDist*$ptDist)*($ptDist*$ptDist)* ($ptDist*$ptDist); \nfloat $ptDist3=$ptDist2/9000000; \n\n//RerunItAgainToSpreadItEvenMore\nfloat $ptDist4 =pow($ptDist3,3);\nfloat $ptDist5=$ptDist4/100000;\nfloat $ptDist6=$ptDist5/100;\n//Finish the equation\n\nforIncanBiasValuePP = (($ptDist3)/ pCube1.ExpressionFloat)/( pCube1.burnDistanceEffector);" -rad $particleVar;
+}
+
+
+
+select -cl;
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $s = `intSliderGrp -q -v bodySection`;
+float $v2= $v+1;
+float $tP= $v2+$s;
+for ($i=$v2; $i<($tP); $i++){
+select -add (("Flow"+$i)+"_particle");
+}
+
+
+sets -e -forceElement fluidShape1SG;
+
+
+select -cl;
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $s = `intSliderGrp -q -v bodySection`;
+float $v2= $v+1;
+float $tP= $v2+$s;
+for ($i=$v2; $i<($tP); $i++){
+setAttr (("Flow"+$i)+"_particleShape.lifespanMode") 2;
+
+
+/*
+float $initNum = `intSliderGrp -q -v sectionSlider`;
+float $inP = $initNum+1;
+for ($i=$v2; $i<($tP); $i++){
+select -r (("Flow"+$i)+"_particleShape");
+particleInstancer -e -name ("instancer"+$i) -objectIndex randId (("Flow"+$i)+"_particleShape");
+}
+*/
+
+
+}
+
+{  
+//***********************************************Arnold V2 Start***************************************************************************************************************
+select -cl;
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $s = `intSliderGrp -q -v bodySection`;
+float $v2= $v+1;
+float $tP= $v2+$s;
+
+
+for ($i=$v2; $i<($tP); $i++){
+setAttr (("Flow"+$i)+"_particleShape.lifespanMode") 2;
+}
+
+for ($i=$v2; $i<($tP); $i++){
+    select -cl;
+    select -r i1 i2 i3 i4 i5 i6 i7 i8 i9 i10 i11 i12 i13 i14 i15 i16 i17 i18 i19 i20 i21 i22 i23 i24 i25 i26 i27 i28 i29 i30 i31 i32 i33 i34 i35 i36 i37 i38 i39 i40 i41 i42 i43 i44 i45 i46 i47 i48 i49 i50 i51 i52 i53 i54 i55 i56 i57 i58 i59 i60 i61 i62 i63 i64 i65 i66 i67 i68 i69 i70 i71 i72 i73 i74 i75 i76 i77 i78 i79 i80 i81 i82 i83 i84 i85 i86 i87 i88 i89 i90 i91 i92 i93 i94 i95 i96 i97 i98 i99 i100 i101 i102 i103 i104 i105 i106 i107 i108 i109 i110 i111 i112 i113 i114 i115 i116 i117 i118 i119 i120 i121 i122 i123 i124 i125 i126 i127 i128 i129 i130 i131 i132 i133 i134 i135 i136 i137 i138 i139 i140 i141 i142 i143 i144 i145 i146 i147 i148 i149 i150 i151 i152 i153 i154 i155 i156 i157 i158 i159 i160 i161 i162 i163 i164 i165 i166 i167 i168 i169 i170 i171 i172 i173 i174 i175 i176 i177 i178 i179 i180 i181 i182 i183 i184 i185 i186 i187 i188 i189 i190 i191 i192 i193 i194 i195 i196 i197 i198 i199 i200 i201 i202 i203 i204 i205 i206 i207 i208 i209 i210 i211 i212 i213 i214 i215 i216 i217 i218 i219 i220 i221 i222 i223 i224 i225 i226 i227 i228 i229 i230 i231 i232 i233 i234 i235 i236 i237 i238 i239 i240 i241 i242 i243 i244 i245 i246 i247 i248 i249 i250 i251 i252 i253 i254 i255 i256 i257 i258 i259 i260 i261 i262 i263 i264 i265 i266 i267 i268 i269 i270 i271 i272 i273 i274 i275 i276 i277 i278 i279 i280 i281 i282 i283 i284 i285 i286 i287 i288 i289 i290 i291 i292 i293 i294 i295 i296 i297 i298 i299 ;
+    select -add (("Flow"+$i)+"_particle") ;
+    //particleInstancer  -addObject -object  i1 -object  i2 -object  i3 -object  i4 -object  i5 -object  i6 -object  i7 -object  i8 -object  i9 -object  i10 -object  i11 -object  i12 -object  i13 -object  i14 -object  i15 -object  i16 -object  i17 -object  i18 -object  i19 -object  i20 -object  i21 -object  i22 -object  i23 -object  i24 -object  i25 -object  i26 -object  i27 -object  i28 -object  i29 -object  i30 -object  i31 -object  i32 -object  i33 -object  i34 -object  i35 -object  i36 -object  i37 -object  i38 -object  i39 -object  i40 -object  i41 -object  i42 -object  i43 -object  i44 -object  i45 -object  i46 -object  i47 -object  i48 -object  i49 -object  i50 -object  i51 -object  i52 -object  i53 -object  i54 -object  i55 -object  i56 -object  i57 -object  i58 -object  i59 -object  i60 -object  i61 -object  i62 -object  i63 -object  i64 -object  i65 -object  i66 -object  i67 -object  i68 -object  i69 -object  i70 -object  i71 -object  i72 -object  i73 -object  i74 -object  i75 -object  i76 -object  i77 -object  i78 -object  i79 -object  i80 -object  i81 -object  i82 -object  i83 -object  i84 -object  i85 -object  i86 -object  i87 -object  i88 -object  i89 -object  i90 -object  i91 -object  i92 -object  i93 -object  i94 -object  i95 -object  i96 -object  i97 -object  i98 -object  i99 -object  i100 -object  i101 -object  i102 -object  i103 -object  i104 -object  i105 -object  i106 -object  i107 -object  i108 -object  i109 -object  i110 -object  i111 -object  i112 -object  i113 -object  i114 -object  i115 -object  i116 -object  i117 -object  i118 -object  i119 -object  i120 -object  i121 -object  i122 -object  i123 -object  i124 -object  i125 -object  i126 -object  i127 -object  i128 -object  i129 -object  i130 -object  i131 -object  i132 -object  i133 -object  i134 -object  i135 -object  i136 -object  i137 -object  i138 -object  i139 -object  i140 -object  i141 -object  i142 -object  i143 -object  i144 -object  i145 -object  i146 -object  i147 -object  i148 -object  i149 -object  i150 -object  i151 -object  i152 -object  i153 -object  i154 -object  i155 -object  i156 -object  i157 -object  i158 -object  i159 -object  i160 -object  i161 -object  i162 -object  i163 -object  i164 -object  i165 -object  i166 -object  i167 -object  i168 -object  i169 -object  i170 -object  i171 -object  i172 -object  i173 -object  i174 -object  i175 -object  i176 -object  i177 -object  i178 -object  i179 -object  i180 -object  i181 -object  i182 -object  i183 -object  i184 -object  i185 -object  i186 -object  i187 -object  i188 -object  i189 -object  i190 -object  i191 -object  i192 -object  i193 -object  i194 -object  i195 -object  i196 -object  i197 -object  i198 -object  i199 -object  i200 -object  i201 -object  i202 -object  i203 -object  i204 -object  i205 -object  i206 -object  i207 -object  i208 -object  i209 -object  i210 -object  i211 -object  i212 -object  i213 -object  i214 -object  i215 -object  i216 -object  i217 -object  i218 -object  i219 -object  i220 -object  i221 -object  i222 -object  i223 -object  i224 -object  i225 -object  i226 -object  i227 -object  i228 -object  i229 -object  i230 -object  i231 -object  i232 -object  i233 -object  i234 -object  i235 -object  i236 -object  i237 -object  i238 -object  i239 -object  i240 -object  i241 -object  i242 -object  i243 -object  i244 -object  i245 -object  i246 -object  i247 -object  i248 -object  i249 -object  i250 -object  i251 -object  i252 -object  i253 -object  i254 -object  i255 -object  i256 -object  i257 -object  i258 -object  i259 -object  i260 -object  i261 -object  i262 -object  i263 -object  i264 -object  i265 -object  i266 -object  i267 -object  i268 -object  i269 -object  i270 -object  i271 -object  i272 -object  i273 -object  i274 -object  i275 -object  i276 -object  i277 -object  i278 -object  i279 -object  i280 -object  i281 -object  i282 -object  i283 -object  i284 -object  i285 -object  i286 -object  i287 -object  i288 -object  i289 -object  i290 -object  i291 -object  i292 -object  i293 -object  i294 -object  i295 -object  i296 -object  i297 -object  i298 -object  i299 -object  Flow1_particle -cycle Sequential -cycleStep 1 -cycleStepUnits Frames -levelOfDetail Geometry -rotationUnits Degrees -rotationOrder XYZ -position worldPosition -age age (("Flow"+$i)+"_particleShape");
+    particleInstancer  -addObject -object  i1 -object  i2 -object  i3 -object  i4 -object  i5 -object  i6 -object  i7 -object  i8 -object  i9 -object  i10 -object  i11 -object  i12 -object  i13 -object  i14 -object  i15 -object  i16 -object  i17 -object  i18 -object  i19 -object  i20 -object  i21 -object  i22 -object  i23 -object  i24 -object  i25 -object  i26 -object  i27 -object  i28 -object  i29 -object  i30 -object  i31 -object  i32 -object  i33 -object  i34 -object  i35 -object  i36 -object  i37 -object  i38 -object  i39 -object  i40 -object  i41 -object  i42 -object  i43 -object  i44 -object  i45 -object  i46 -object  i47 -object  i48 -object  i49 -object  i50 -object  i51 -object  i52 -object  i53 -object  i54 -object  i55 -object  i56 -object  i57 -object  i58 -object  i59 -object  i60 -object  i61 -object  i62 -object  i63 -object  i64 -object  i65 -object  i66 -object  i67 -object  i68 -object  i69 -object  i70 -object  i71 -object  i72 -object  i73 -object  i74 -object  i75 -object  i76 -object  i77 -object  i78 -object  i79 -object  i80 -object  i81 -object  i82 -object  i83 -object  i84 -object  i85 -object  i86 -object  i87 -object  i88 -object  i89 -object  i90 -object  i91 -object  i92 -object  i93 -object  i94 -object  i95 -object  i96 -object  i97 -object  i98 -object  i99 -object  i100 -object  i101 -object  i102 -object  i103 -object  i104 -object  i105 -object  i106 -object  i107 -object  i108 -object  i109 -object  i110 -object  i111 -object  i112 -object  i113 -object  i114 -object  i115 -object  i116 -object  i117 -object  i118 -object  i119 -object  i120 -object  i121 -object  i122 -object  i123 -object  i124 -object  i125 -object  i126 -object  i127 -object  i128 -object  i129 -object  i130 -object  i131 -object  i132 -object  i133 -object  i134 -object  i135 -object  i136 -object  i137 -object  i138 -object  i139 -object  i140 -object  i141 -object  i142 -object  i143 -object  i144 -object  i145 -object  i146 -object  i147 -object  i148 -object  i149 -object  i150 -object  i151 -object  i152 -object  i153 -object  i154 -object  i155 -object  i156 -object  i157 -object  i158 -object  i159 -object  i160 -object  i161 -object  i162 -object  i163 -object  i164 -object  i165 -object  i166 -object  i167 -object  i168 -object  i169 -object  i170 -object  i171 -object  i172 -object  i173 -object  i174 -object  i175 -object  i176 -object  i177 -object  i178 -object  i179 -object  i180 -object  i181 -object  i182 -object  i183 -object  i184 -object  i185 -object  i186 -object  i187 -object  i188 -object  i189 -object  i190 -object  i191 -object  i192 -object  i193 -object  i194 -object  i195 -object  i196 -object  i197 -object  i198 -object  i199 -object  i200 -object  i201 -object  i202 -object  i203 -object  i204 -object  i205 -object  i206 -object  i207 -object  i208 -object  i209 -object  i210 -object  i211 -object  i212 -object  i213 -object  i214 -object  i215 -object  i216 -object  i217 -object  i218 -object  i219 -object  i220 -object  i221 -object  i222 -object  i223 -object  i224 -object  i225 -object  i226 -object  i227 -object  i228 -object  i229 -object  i230 -object  i231 -object  i232 -object  i233 -object  i234 -object  i235 -object  i236 -object  i237 -object  i238 -object  i239 -object  i240 -object  i241 -object  i242 -object  i243 -object  i244 -object  i245 -object  i246 -object  i247 -object  i248 -object  i249 -object  i250 -object  i251 -object  i252 -object  i253 -object  i254 -object  i255 -object  i256 -object  i257 -object  i258 -object  i259 -object  i260 -object  i261 -object  i262 -object  i263 -object  i264 -object  i265 -object  i266 -object  i267 -object  i268 -object  i269 -object  i270 -object  i271 -object  i272 -object  i273 -object  i274 -object  i275 -object  i276 -object  i277 -object  i278 -object  i279 -object  i280 -object  i281 -object  i282 -object  i283 -object  i284 -object  i285 -object  i286 -object  i287 -object  i288 -object  i289 -object  i290 -object  i291 -object  i292 -object  i293 -object  i294 -object  i295 -object  i296 -object  i297 -object  i298 -object  i299 -object  Flow19_particle -cycle Sequential -cycleStep 1 -cycleStepUnits Frames -levelOfDetail Geometry -rotationUnits Degrees -rotationOrder XYZ -position worldPosition -scale radiusPP -age age (("Flow"+$i)+"_particleShape");
+
+    //setAttr (("instancer"+$i).visibility") 0;
+    setAttr (("instancer"+$i)+".visibility") 0;
+    select -cl;
+}
+
+for ($i=$v2; $i<($tP); $i++){    
+    select -add ("instancer"+$i);
+    doGroup 0 1 1;
+    rename "group1" "headInstances";
+}
+rename "headInstances8" "headInstances_v2";
+
+//create rand rotation and random scale
+for ($i=$v2; $i<($tP); $i++){
+    //string $scl = (("Flow"+$i)+"_particleShape");
+    //particleInstancer -e -name ("instancer"+$i) -scale randScaleInst $scl;
+    particleInstancer -e -name ("instancer"+$i) -scale randScaleInst (("Flow"+$i)+"_particleShape");
+    particleInstancer -e -name ("instancer"+$i) -rotation randRotInst (("Flow"+$i)+"_particleShape");
+}
+
+
+for ($i=$v2; $i<($tP); $i++){
+    addAttr -ln "ageRamp"  -dt doubleArray  (("Flow"+$i)+"_particleShape");
+    //setAttr -e-keyable true (("Flow"+$i)+"_particleShape.ageRamp");
+    arrayMapper -target (("Flow"+$i)+"_particleShape") -destAttr ageRamp -inputV ageNormalized -type ramp;
+    particleInstancer -e -name ("instancer"+$i) -age ageRamp (("Flow"+$i)+"_particleShape");
+}
+
+//Setup the array mappers & Ramp for the burn and parent them to one parent for both array maper and ramp
+
+//set ramp black and white positions
+setAttr "BBB_masterIncanBurnBaby.colorEntryList[0].position" 0;
+removeMultiInstance -break true BBB_masterIncanBurnBaby.colorEntryList[2];
+setAttr "color1.inColor" -type double3 1 1 1 ;
+
+select -cl;
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $s = `intSliderGrp -q -v bodySection`;
+float $bRamp = ($v*4)-1;
+float $bArray = ($v*7)-1;
+
+float $bRampEnd = $bRamp + $s -1;
+float $bArrayEnd = $bArray +$s -1;
+
+float $array = $bArray;
+float $endArray = $bArrayEnd + 1;
+
+float $startIt = (($v*2)+1);
+float $endIt = ($startIt+$v);
+
+float $startParts = $v+1;
+float $totalNum = $v + $s;
+float $numberTotalPlus = $totalNum + 1;
+
+float $newBodyArrayStart = ($v*5) + ($s*4) + 3;
+float $newBodyEndArray = $newBodyArrayStart + ($s-1);
+
+//set arrays
+for ($i=$newBodyArrayStart; $i<$newBodyEndArray+1; $i++){
+    string $currentAMapper = ("arrayMapper"+$i);
+    expression -s "minValue = pCube1.arrayStartBody;"  -o ($currentAMapper) -ae 1 -uc all ;
+    expression -s "maxValue = pCube1.arrayEndBody;"  -o ($currentAMapper) -ae 1 -uc all ;
+}
+addAttr -ln "arrayMin"  -at double  -dv 0 BBB_masterIncanBurnBaby;
+addAttr -ln "arrayMax"  -at double  -dv 0 BBB_masterIncanBurnBaby;
+setAttr "BBB_masterIncanBurnBaby.arrayMin" 5;
+expression -s "pCube1.arrayStartBody = BBB_masterIncanBurnBaby.arrayMin;"  -o pCube1 -ae 1 -uc all ;
+expression -s "pCube1.arrayEndBody = BBB_masterIncanBurnBaby.arrayMax;"  -o pCube1 -ae 1 -uc all ;
+
+//***********************************************Arnold V2 End***************************************************************************************************************
+for ($i=1; $i<($numberTotalPlus); $i++){ 
+setAttr (("Flow"+$i)+"_particleShape.aiExportAttributes") -type "string" "rgbPP";
+//setAttr "Flow1_particleShape.aiExportAttributes" -type "string" "rgbPP";
+setAttr (("instancer"+$i)+".levelOfDetail") 2;
+setAttr (("instancer"+$i)+".lodVisibility") 1;
+}
+
+float $startParts = `intSliderGrp -q -v sectionSlider`;
+float $inP = $numberTotalPlus;
+setAttr "fluid1.visibility" 0;
+
+for ($i=$startParts; $i<($numberTotalPlus); $i++){ 
+select -r (("Flow"+$i)+"_particleShape");
+particleInstancer -e -name ("instancer"+$i) -objectIndex randId (("Flow"+$i)+"_particleShape");
+}
+
+//*************************************
+//*************************************
+//*************************************
+float $srtRmp = ($v*3) + ($s*2) + 1;
+float $endRampPlus = $srtRmp + $s;
+//select -r ("ramp"+($startAtBody));
+for ($i=$srtRmp; $i<($endRampPlus); $i++){
+    //select -r ("ramp"+($startAtHead));
+    string $theCurrentRamp = ("ramp"+$i);
+    //select -r (("ramp"+(($i+$startAtHead)-1));
+    expression -s "colorEntryList[0].position = AAA_masterIncanBurnBaby.colorEntryList[0].position;"  -o ($theCurrentRamp) -ae 1 -uc all ;
+    expression -s "colorEntryList[1].position = AAA_masterIncanBurnBaby.colorEntryList[1].position;"  -o ($theCurrentRamp) -ae 1 -uc all ;
+    setAttr (("ramp"+$i)+".colorEntryList[0].color") -type double3 0 0 0 ;
+    setAttr (("ramp"+$i)+".colorEntryList[1].color") -type double3 1 1 1 ;
+
+}
+
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $s = `intSliderGrp -q -v bodySection`;
+//New Stuff
+float $startRamp = ($v*3) + ($s*3) + 1;
+float $endRamp = $startRamp + $s - 1;
+
+for ($i = $v+1; $i < $v+$s+1; $i++){
+    addAttr -ln userVector2PP -dt vectorArray (("Flow"+$i)+"_particleShape");
+    arrayMapper -target (("Flow"+$i)+"_particleShape") -destAttr userVector2PP -inputV ageNormalized -type ramp;
+    particleInstancer -e -name ("instancer"+$i) -scale userVector2PP (("Flow"+$i)+"_particleShape");
+}
+
+//create variables for User Vector2 start and end values for loop
+
+float $srtRmp = ($v*3) + ($s*3) + 1;
+float $endRmp = ($srtRmp + $s) - 1;
+float $endRampPlus = $srtRmp + $s;
+
+//print($srtRmp);
+//print $endRampPlus;
+
+//create a parent ramp uv2Ramp
+shadingNode -asTexture ramp;
+rename ("ramp"+$endRampPlus) "uv2Ramp" ;
+
+for ($i=$srtRmp; $i<($endRampPlus); $i++){
+    string $theCurrentRamp = ("ramp"+$i);
+    expression -s "colorEntryList[0].position = uv2Ramp.colorEntryList[0].position;"  -o ($theCurrentRamp) -ae 1 -uc all ;
+    expression -s "colorEntryList[1].position = uv2Ramp.colorEntryList[1].position;"  -o ($theCurrentRamp) -ae 1 -uc all ;
+    //expression -s "colorEntryList[1].position = AAA_masterIncanBurnBaby.colorEntryList[1].position;\ncolorEntryList[2].position = AAA_masterIncanBurnBaby.colorEntryList[2].position;\ncolorEntryList[3].position = AAA_masterIncanBurnBaby.colorEntryList[0].position;"  -o ($theCurrentRamp) -ae 1 -uc all ;
+}
+
+///*
+//reset ramp colors and positions
+setAttr "uv2Ramp.colorEntryList[1].position" 1;
+
+for ($i=$srtRmp; $i<($endRampPlus); $i++){
+    string $theCurrentRamp = ("ramp"+$i);
+    setAttr (("ramp"+$i)+".colorEntryList[0].color") -type double3 0 0 0 ;
+    setAttr (("ramp"+$i)+".colorEntryList[1].color") -type double3 1 1 1 ;
+    }
+setAttr "uv2Ramp.colorEntryList[0].color" -type double3 0 0 0 ;
+setAttr "uv2Ramp.colorEntryList[1].color" -type double3 1 1 1 ;
+//*/
+}
+
+{
+select -cl;
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $s = `intSliderGrp -q -v bodySection`;
+float $v2= $v+1;
+float $tP= $v2+$s;
+for ($i=$v2; $i<($tP); $i++){
+//select (("Flow"+$i)+"_particle");
+//string $particleVar[] = `ls -sl`;
+//for ($i=$v2; $i<($tP); $i++){
+select (("Flow"+$i)+"_particle");
+expression -s "scaleX = pCube1.particleScale2/100;"  -o (("Flow"+$i)+"_particle") -ae 1 -uc all ;
+expression -s "scaleY = pCube1.particleScale2/100;"  -o (("Flow"+$i)+"_particle") -ae 1 -uc all ;
+expression -s "scaleZ = pCube1.particleScale2/100;"  -o (("Flow"+$i)+"_particle") -ae 1 -uc all ;
+}
+/*
+for ($i=5; $i<9; $i++){
+expression -s "scaleX = pCube1.particleScale2/750;"  -o ("fluid"+$i) -ae 1 -uc all ;
+expression -s "scaleY = pCube1.particleScale2/750;"  -o ("fluid"+$i) -ae 1 -uc all ;
+expression -s "scaleZ = pCube1.particleScale2/750;"  -o ("fluid"+$i) -ae 1 -uc all ;
+}
+*/
+
+//******new addition
+float $bodySec = $v + 1;
+float $bodyEndPlus = $bodySec + $s;
+
+for ($i = $bodySec; $i < $bodyEndPlus; $i++){
+    string $currentFlow = (("Flow" + $i) + "_particleShape");
+    dynExpression -s "//Mine\n$bodyRandU = (pCube1.bodyRandU/pCube1.RandUBodyMult)*1.05;\n$bodyRandV = (pCube1.bodyRandV/pCube1.RandVBodyMult)*1.05;\n//radiusPP = rand($bodyRandU,$bodyRandV);\n//TextureOrigin\nuserVector1PP = sphrand(20);\n\n//newArnoldVer\nrandScaleInst = rand(.5, 1.5);\nrandRotInst = rand(360);\nrandId = rand(5,8);\n\n\n\n\n//Theirs\ngoalPP = 0;\nvector $idVector = particleId;\nvector $randomPosition = dnoise( $idVector * 10.0 ) * 100.0;\nrandomPosition = $randomPosition;\nfloat $randomMotionSpeed = randomMotionSpeed;\nfloat $maxDistance = maxDistance;\nvector $curveOffset =\n dnoise( $randomPosition + ( time * $randomMotionSpeed ) ) *\n $maxDistance;\nvector $rampValues = rampValues;\ncurveOffset =\n curveOffset;\ngoalOffset =\n $rampValues + $curveOffset;" -c ($currentFlow);
+    arrayMapper -target (("Flow" + $i) + "_particleShape") -destAttr radiusPP -inputV ageNormalized -type ramp;
+}
+//set body scale ramp color and position
+float $start = ($v*3) +($s*4) + 1;
+float $end = $start + $s;
+shadingNode -asTexture ramp;
+rename ("ramp"+$i) "uv2Ramp2" ;
+print($start);
+
+for ($i=$start; $i<$end; $i++){
+    string $theCurrentRamp = ("ramp"+$i);
+    expression -s "colorEntryList[0].position = uv2Ramp.colorEntryList[0].position;"  -o ($theCurrentRamp) -ae 1 -uc all ;
+    expression -s "colorEntryList[1].position = uv2Ramp.colorEntryList[1].position;"  -o ($theCurrentRamp) -ae 1 -uc all ;
+    setAttr (("ramp"+$i)+".colorEntryList[0].color") -type double3 0 0 0 ;
+    setAttr (("ramp"+$i)+".colorEntryList[1].color") -type double3 1 1 1 ;
+}
+
+//This is mute point as not using but keep for now incase we need to split up the body particles scale from the body instances
+//connect uvramp2 to uvramp - uvramp is the scale of the the body fluid particles and the uvramp2 is the scale of the body particles
+removeMultiInstance -break true uv2Ramp2.colorEntryList[0];
+removeMultiInstance -break true uv2Ramp2.colorEntryList[2];
+
+//create an array attribute on the pcube to control the body scale numbers of the array of the ramp
+addAttr -ln "bodyScaleStart"  -at double  -dv 0 |pCube1;
+addAttr -ln "bodyScaleEnd"  -at double  -dv 0 |pCube1;
+addAttr -ln "bodyScaleSmall"  -at double  -dv 0 uv2Ramp;
+addAttr -ln "bodyScaleLarge"  -at double  -dv 0 uv2Ramp;
+expression -s "pCube1.bodyScaleEnd = uv2Ramp.bodyScaleLarge;"  -o pCube1 -ae 1 -uc all ;
+expression -s "pCube1.bodyScaleStart = uv2Ramp.bodyScaleSmall;"  -o pCube1 -ae 1 -uc all ;
+setAttr "uv2Ramp.bodyScaleLarge" 1;
+
+
+
+//set array for userVec2 $RadiusPP in one go to equal the array attributes of uvRamp
+float $vecArrayStart = ($v*5) + ($s*5) + 3;
+float $vecEnd = $vecArrayStart + $s;
+float $extendEnd = $vecEnd+8;
+print $vecArrayStart;
+print $extendEnd;
+
+for ($i = $vecArrayStart; $i<$extendEnd; $i++){
+    string $curArray = ("arrayMapper"+$i);
+    expression -s "minValue = uv2Ramp.bodyScaleSmall;"  -o ($curArray) -ae 1 -uc all ;
+    expression -s "maxValue = uv2Ramp.bodyScaleLarge;"  -o ($curArray) -ae 1 -uc all ;
+}
+
+setAttr "uv2Ramp.colorEntryList[0].position" 1;
+setAttr "uv2Ramp.colorEntryList[1].position" 0;
+addAttr -ln "minBody_Cooler"  -at double  -dv 0 AAA_masterIncanBurnBaby;
+addAttr -ln "maxBody_Hotter"  -at double  -dv 0 AAA_masterIncanBurnBaby;
+setAttr "AAA_masterIncanBurnBaby.minBody_Cooler" 7;
+expression -s "BBB_masterIncanBurnBaby.arrayMin = AAA_masterIncanBurnBaby.minBody_Cooler;"  -o BBB_masterIncanBurnBaby -ae 1 -uc all ;
+
+}
+
+}
+
+global proc func9() { 
+
+//Old body scale
+/*
+float $particleBodyScale = `getAttr "pCube1.bodyParticleScale"`;
+float $scaleTweaker = $particleBodyScale*4;
+float $bp = `intSliderGrp -q -v bodySection`;
+float $pp = `intSliderGrp -q -v sectionSlider`;
+float $ppAdd = $pp+1;
+float $bpp= $bp+$pp;
+float $pp1 = $ppAdd+$bp;
+select -cl;
+float $estab1=`getAttr "pCube1.particleRandomBodyStringSize1"`;
+float $estab2=`getAttr "pCube1.particleRandomBodyStringSize2"`;
+float $randBody1=$estab1*.1;
+float $randBody2=$estab2*.1;
+for ($i=$ppAdd; $i<$pp1; $i++){ 
+float $randParticleBodyScale = ($scaleTweaker)*(rand($randBody1,$randBody2));
+setAttr (("Flow"+$i)+"_particle.scaleX") ($randParticleBodyScale);
+setAttr (("Flow"+$i)+"_particle.scaleY") ($randParticleBodyScale);
+setAttr (("Flow"+$i)+"_particle.scaleZ") ($randParticleBodyScale);
+*/
+
+
+float $particleBodySpeedOne = `getAttr "pCube1.bodySpeedOne"`;
+float $particleBodySpeedTwo = `getAttr "pCube1.bodySpeedTwo"`;
+float $ppSpd = `intSliderGrp -q -v sectionSlider`;
+float $bp = `intSliderGrp -q -v bodySection`;
+float $ppSpdAdd = $ppSpd+1;
+float $ppSpdCon = $ppSpdAdd+$bp;
+float $ppSpd1 = $ppSpdCon+1;
+select -cl;
+
+//for old body speed
+/*
+for ($i=$ppSpdAdd; $i<$ppSpdCon; $i++){ 
+float $random = rand($particleBodySpeedOne,$particleBodySpeedTwo);
+setAttr (("Flow"+$i)+".lifespan") $random;
+}
+*/
+
+
+float $emissionBodyRateOne = `getAttr "pCube1.bodyEmissionRateOne"`;
+float $emissionBodyRateTwo = `getAttr "pCube1.bodyEmissionRateTwo"`;
+float $ppSpd = `intSliderGrp -q -v sectionSlider`;
+float $ppSpdAdd = $ppSpd+1;
+float $bp = `intSliderGrp -q -v bodySection`;
+float $ppSpd2 = $ppSpd+$bp;
+float $ppSpd1 = $ppSpd2+1;
+float $eR2 = $ppSpd2;
+select -cl;
+for ($i=$ppSpdAdd; $i<$eR2; $i++){ 
+float $randomDos = rand($emissionBodyRateOne,$emissionBodyRateTwo);
+setAttr (("Flow"+$i)+".emissionRate") $randomDos;
+}
+}
+
+global proc func12() {
+
+
+
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $s = `intSliderGrp -q -v bodySection`;
+float $arrayNum=(($v*3)+19)+(($s-8)*2);
+float $arrayNumAndOne=$arrayNum+1;
+float $start = ($v*2)+1;
+float $firstEnd=($v*3);
+float $firstEndTrue=$firstEnd+1;
+float $end = $arrayNum + $s;
+float $total =$v+$s;
+float $theEnd=$start+$s+1;
+float $totalPlus=$total+1;
+
+
+for ($i=$start; $i<$firstEndTrue; $i++){
+connectAttr pCube1.forIncanMinValue (("arrayMapper"+$i)+".minValue");
+connectAttr pCube1.forIncanMaxValue (("arrayMapper"+$i)+".maxValue"); 
+}
+
+
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $s = `intSliderGrp -q -v bodySection`;
+float $arrayNum=(($v*3)+19)+(($s-8)*2);
+float $arrayNumLast=$arrayNum+$s;
+float $arrayNumAndOne=$arrayNumLast+1;
+float $start = ($v*2)+1;
+float $end = $arrayNum + $s;
+float $total =$v+$s;
+float $theEnd=$start+$s+1;
+float $totalPlus=$total+1;
+
+for ($j=$arrayNum; $j<$arrayNumLast; $j++){
+connectAttr pCube1.forIncanMinBodyValue (("arrayMapper"+$j)+".minValue");
+connectAttr pCube1.forIncanMaxBodyValue (("arrayMapper"+$j)+".maxValue");
+}
+
+}
+
+global proc func13() {
+
+polyTorus;
+scale -r 2.543477 2.543477 2.543477 ;
+scale -r 1 0.507846 1 ;
+TranslateToolWithSnapMarkingMenu;
+dR_TranslateToolMarkingMenuPopDown;
+move -r 0 -0.42795 0 ;
+setAttr "polyTorus1.subdivisionsAxis" 20;
+setAttr "polyTorus1.subdivisionsHeight" 4;
+select -r Flow10 Flow11 Flow12 Flow14 ;
+select -r pTorus1 ;
+select -r pTorus1.f[40:79] ;
+doDelete;
+float $groundSubdivision = `floatSliderGrp -q -v groundSubdivision`;
+for ($i=1; $i<$groundSubdivision; $i++){
+select -r pTorus1 ;
+polySmooth;
+print $i;
+}
+
+
+
+float $cloudDensity = `floatSliderGrp -q -v cloudDensity`;
+
+select -r pTorus1 ;
+emitter -type surface -r ($cloudDensity) -sro 0 -nuv 0 -cye none -cyi 1 -spd 0 -srn 0 -nsp 1 -tsp 0 -mxd 0 -mnd 0 -dx 1 -dy 0 -dz 0 -sp 0 ;
+particle;
+connectDynamic -em emitter1 particle1; 
+expression -s "float $frame = frame;\nif ($frame<3){\nemitter1.rate = pCube1.cloudDensity;\n}\nelse {\nemitter1.rate=pCube1.densityZero;\n}" -o emitter1 -ae 1 -uc all ;
+setAttr "particleShape1.particleRenderType" 4;
+addAttr -ln userVector1PP -dt vectorArray particleShape1;
+addAttr -ln userVector1PP0 -dt vectorArray particleShape1;
+addAttr -ln radiusPP -dt doubleArray particleShape1;
+addAttr -ln radiusPP0 -dt doubleArray particleShape1;
+addAttr -ln parentU -dt doubleArray particleShape1;
+addAttr -ln parentU0 -dt doubleArray particleShape1;
+addAttr -ln parentV -dt doubleArray particleShape1;
+addAttr -ln parentV0 -dt doubleArray particleShape1;
+addAttr -ln goalU -dt doubleArray particleShape1;
+addAttr -ln goalU0 -dt doubleArray particleShape1;
+addAttr -ln goalV -dt doubleArray particleShape1;
+addAttr -ln goalV0 -dt doubleArray particleShape1;
+dynExpression -s "//Mine\n$randU=pCube1.groundRandU/pCube1.groundSizeDiv;\n$randV=pCube1.groundRandV/pCube1.groundSizeDiv;\nparticleShape1.radiusPP = rand($randU,$randV);\n//TextureOrigin\nparticleShape1.userVector1PP = sphrand(20);\nparticleShape1.goalU=particleShape1.parentU;\nparticleShape1.goalV=particleShape1.parentV;" -c particleShape1;
+
+
+select -r particle1 ;
+select -add pTorus1 ;
+Goal;
+setAttr "emitter1.needParentUV" 1;
+goal -w 1 -utr 0 -g pTorus1 particle1;
+
+//newArnold
+//expression -s "fluid9.scaleX = pCube1.particleScale2/650;\nfluid9.scaleY = pCube1.particleScale2/650;\nfluid9.scaleZ = pCube1.particleScale2/650;"  -o fluid9 -ae 1 -uc all ;
+select -cl;
+select -r i1 i2 i3 i4 i5 i6 i7 i8 i9 i10 i11 i12 i13 i14 i15 i16 i17 i18 i19 i20 i21 i22 i23 i24 i25 i26 i27 i28 i29 i30 i31 i32 i33 i34 i35 i36 i37 i38 i39 i40 i41 i42 i43 i44 i45 i46 i47 i48 i49 i50 i51 i52 i53 i54 i55 i56 i57 i58 i59 i60 i61 i62 i63 i64 i65 i66 i67 i68 i69 i70 i71 i72 i73 i74 i75 i76 i77 i78 i79 i80 i81 i82 i83 i84 i85 i86 i87 i88 i89 i90 i91 i92 i93 i94 i95 i96 i97 i98 i99 i100 i101 i102 i103 i104 i105 i106 i107 i108 i109 i110 i111 i112 i113 i114 i115 i116 i117 i118 i119 i120 i121 i122 i123 i124 i125 i126 i127 i128 i129 i130 i131 i132 i133 i134 i135 i136 i137 i138 i139 i140 i141 i142 i143 i144 i145 i146 i147 i148 i149 i150 i151 i152 i153 i154 i155 i156 i157 i158 i159 i160 i161 i162 i163 i164 i165 i166 i167 i168 i169 i170 i171 i172 i173 i174 i175 i176 i177 i178 i179 i180 i181 i182 i183 i184 i185 i186 i187 i188 i189 i190 i191 i192 i193 i194 i195 i196 i197 i198 i199 i200 i201 i202 i203 i204 i205 i206 i207 i208 i209 i210 i211 i212 i213 i214 i215 i216 i217 i218 i219 i220 i221 i222 i223 i224 i225 i226 i227 i228 i229 i230 i231 i232 i233 i234 i235 i236 i237 i238 i239 i240 i241 i242 i243 i244 i245 i246 i247 i248 i249 i250 i251 i252 i253 i254 i255 i256 i257 i258 i259 i260 i261 i262 i263 i264 i265 i266 i267 i268 i269 i270 i271 i272 i273 i274 i275 i276 i277 i278 i279 i280 i281 i282 i283 i284 i285 i286 i287 i288 i289 i290 i291 i292 i293 i294 i295 i296 i297 i298 i299 ;
+select -add particle1 ;
+//particleInstancer  -addObject -object i1 -object i2 -object i3 -object i4 -object i5 -object i6 -object i7 -object i8 -object i9 -object i10 -object i11 -object i12 -object i13 -object i14 -object i15 -object i16 -object i17 -object i18 -object i19 -object i20 -object i21 -object i22 -object i23 -object i24 -object i25 -object i26 -object i27 -object i28 -object i29 -object i30 -object i31 -object i32 -object i33 -object i34 -object i35 -object i36 -object i37 -object i38 -object i39 -object i40 -object i41 -object i42 -object i43 -object i44 -object i45 -object i46 -object i47 -object i48 -object i49 -object i50 -object i51 -object i52 -object i53 -object i54 -object i55 -object i56 -object i57 -object i58 -object i59 -object i60 -object i61 -object i62 -object i63 -object i64 -object i65 -object i66 -object i67 -object i68 -object i69 -object i70 -object i71 -object i72 -object i73 -object i74 -object i75 -object i76 -object i77 -object i78 -object i79 -object i80 -object i81 -object i82 -object i83 -object i84 -object i85 -object i86 -object i87 -object i88 -object i89 -object i90 -object i91 -object i92 -object i93 -object i94 -object i95 -object i96 -object i97 -object i98 -object i99 -object i100 -object i101 -object i102 -object i103 -object i104 -object i105 -object i106 -object i107 -object i108 -object i109 -object i110 -object i111 -object i112 -object i113 -object i114 -object i115 -object i116 -object i117 -object i118 -object i119 -object i120 -object i121 -object i122 -object i123 -object i124 -object i125 -object i126 -object i127 -object i128 -object i129 -object i130 -object i131 -object i132 -object i133 -object i134 -object i135 -object i136 -object i137 -object i138 -object i139 -object i140 -object i141 -object i142 -object i143 -object i144 -object i145 -object i146 -object i147 -object i148 -object i149 -object i150 -object i151 -object i152 -object i153 -object i154 -object i155 -object i156 -object i157 -object i158 -object i159 -object i160 -object i161 -object i162 -object i163 -object i164 -object i165 -object i166 -object i167 -object i168 -object i169 -object i170 -object i171 -object i172 -object i173 -object i174 -object i175 -object i176 -object i177 -object i178 -object i179 -object i180 -object i181 -object i182 -object i183 -object i184 -object i185 -object i186 -object i187 -object i188 -object i189 -object i190 -object i191 -object i192 -object i193 -object i194 -object i195 -object i196 -object i197 -object i198 -object i199 -object i200 -object i201 -object i202 -object i203 -object i204 -object i205 -object i206 -object i207 -object i208 -object i209 -object i210 -object i211 -object i212 -object i213 -object i214 -object i215 -object i216 -object i217 -object i218 -object i219 -object i220 -object i221 -object i222 -object i223 -object i224 -object i225 -object i226 -object i227 -object i228 -object i229 -object i230 -object i231 -object i232 -object i233 -object i234 -object i235 -object i236 -object i237 -object i238 -object i239 -object i240 -object i241 -object i242 -object i243 -object i244 -object i245 -object i246 -object i247 -object i248 -object i249 -object i250 -object i251 -object i252 -object i253 -object i254 -object i255 -object i256 -object i257 -object i258 -object i259 -object i260 -object i261 -object i262 -object i263 -object i264 -object i265 -object i266 -object i267 -object i268 -object i269 -object i270 -object i271 -object i272 -object i273 -object i274 -object i275 -object i276 -object i277 -object i278 -object i279 -object i280 -object i281 -object i282 -object i283 -object i284 -object i285 -object i286 -object i287 -object i288 -object i289 -object i290 -object i291 -object i292 -object i293 -object i294 -object i295 -object i296 -object i297 -object i298 -object i299 -cycle Sequential -cycleStep 1 -cycleStepUnits Frames -levelOfDetail Geometry -rotationUnits Degrees -rotationOrder XYZ -position worldPosition -shear radiusPP -age age particleShape1;
+particleInstancer  -addObject -object i299 -levelOfDetail Geometry -rotationUnits Degrees -rotationOrder XYZ -position worldPosition -shear radiusPP -age age particleShape1;
+
+//rename "particle1" "parcile1";
+select -r particle1;
+addAttr -ln "randRot"  -dt vectorArray  particleShape1;
+setAttr -e-keyable true particleShape1.randRot;
+addAttr -ln "randScale"  -dt vectorArray  particleShape1;
+setAttr -e-keyable true particleShape1.randScale;
+addAttr -ln "randId0"  -dt doubleArray  particleShape1;
+addAttr -ln "randId"  -dt doubleArray  particleShape1;
+setAttr -e-keyable true particleShape1.randId;
+
+dynExpression -s "//Mine\n$randU=pCube1.groundRandU/pCube1.groundSizeDiv;\n$randV=pCube1.groundRandV/pCube1.groundSizeDiv;\nparticleShape1.radiusPP = rand($randU,$randV);\nrandRot = rand(360);\nrandScale = rand($randU*1.5, $randV*1.5);\n\n//TextureOrigin\nparticleShape1.userVector1PP = sphrand(20);\nparticleShape1.goalU=particleShape1.parentU;\nparticleShape1.goalV=particleShape1.parentV;" -c particleShape1;
+particleInstancer -e -name instancer39 -age "" particleShape1;
+particleInstancer -e -name instancer39 -cycleStartObject randId particleShape1;
+dynExpression -s "//Mine\n$randU=pCube1.groundRandU/pCube1.groundSizeDiv;\n$randU2=$randU*5;\n$randV2=$randV*5;\n$randV=pCube1.groundRandV/pCube1.groundSizeDiv;\nparticleShape1.radiusPP = rand($randU,$randV);\nparticleShape1.randRot = rand(360);\nparticleShape1.randScale = rand($randU2, $randV2);\n$randID = 299;\n\n//TextureOrigin\nparticleShape1.userVector1PP = sphrand(20);\nparticleShape1.goalU=particleShape1.parentU;\nparticleShape1.goalV=particleShape1.parentV;" -c particleShape1;
+
+
+float $ss = `intSliderGrp -q -v sectionSlider`;
+float $bs = `intSliderGrp -q -v bodySection`;
+float $combine = $ss + $bs + 1;
+float $lessThan = $combine + 1;
+for ($i=$combine; $i<$lessThan; $i++){
+setAttr (("instancer"+$i)+".visibility") 0;
+setAttr (("instancer"+$i)+".levelOfDetail") 2;
+setAttr (("instancer"+$i)+".lodVisibility") 0;
+}
+
+particleInstancer -e -name ("instancer"+$combine) -scale randScale particleShape1;
+particleInstancer -e -name ("instancer"+$combine) -rotation randRot particleShape1;
+
+
+
+cycleCheck -e off;
+
+}
+
+global proc func14() {
+//setAttr "particleShape1.particleRenderType" 8;
+setAttr "particle1.visibility" 0;
+float $ss = `intSliderGrp -q -v sectionSlider`;
+float $bs = `intSliderGrp -q -v bodySection`;
+float $combine = $ss + $bs + 1;
+float $lessThan = $combine + 1;
+for ($i=$combine; $i<$lessThan; $i++){
+setAttr (("instancer"+$i)+".visibility") 1;
+}
+}
+
+global proc func15() {
+//setAttr "particleShape1.particleRenderType" 4;
+setAttr "particle1.visibility" 1;
+float $ss = `intSliderGrp -q -v sectionSlider`;
+float $bs = `intSliderGrp -q -v bodySection`;
+float $combine = $ss + $bs + 1;
+float $lessThan = $combine + 1;
+for ($i=$combine; $i<$lessThan; $i++){
+setAttr (("instancer"+$i)+".visibility") 0;
+}
+}
+
+global proc func16() {
+
+addPerParticleGoalPointAttr particleShape1 0 WorldNormal vectorArray;
+ 
+}
+
+global proc arnoldfunc2() {
+    //**************fix instancer Number*************
+float $ss = `intSliderGrp -q -v sectionSlider`;
+float $bs = `intSliderGrp -q -v bodySection`;
+float $combine = $ss + $bs + 1;
+particleInstancer -e -name ("instancer"+$combine) -scale randScale particleShape1;
+particleInstancer -e -name ("instancer"+$combine) -rotation randRot particleShape1;
+}
+
+
+global proc func17() {
+//select -r particleShape1;
+//setParent MayaWindow|MainAttributeEditorLayout|formLayout2|AEmenuBarLayout|AErootLayout|AEStackLayout|AErootLayoutPane|AEbaseFormLayout|AEcontrolFormLayout|AttrEdparticleFormLayout|scrollLayout4|columnLayout34|frameLayout65|columnLayout50;
+/*setUITemplate -pst attributeEditorTemplate;
+columnLayout -adj true;
+AEdynObjectGoalWeightNew( "particleShape1.goalWeight" );
+setParent ..; setParent ..;
+setUITemplate -ppt;
+setUITemplate -pst attributeEditorTemplate;
+callbacks -executeCallbacks -hook "AEreplaceAttributeHandler" "MayaWindow|MainAttributeEditorLayout|formLayout2|AEmenuBarLayout|AErootLayout|AEStackLayout|AErootLayoutPane|AEbaseFormLayout|AEcontrolFormLayout|AttrEdparticleFormLayout|scrollLayout4|columnLayout34|formLayout89" "particleShape1.isDynamic" "";
+AEreplaceBoolean "MayaWindow|MainAttributeEditorLayout|formLayout2|AEmenuBarLayout|AErootLayout|AEStackLayout|AErootLayoutPane|AEbaseFormLayout|AEcontrolFormLayout|AttrEdparticleFormLayout|scrollLayout4|columnLayout34|formLayout89" "particleShape1.isDynamic" "" 1;
+setParent MayaWindow|MainAttributeEditorLayout|formLayout2|AEmenuBarLayout|AErootLayout|AEStackLayout|AErootLayoutPane|AEbaseFormLayout|AEcontrolFormLayout|AttrEdparticleFormLayout|scrollLayout4|columnLayout34|frameLayout65|columnLayout50|columnLayout58;
+*/
+
+AEdynObjectGoalWeightReplace( "particleShape1.goalWeight" );
+}
+
+global proc func18 (){
+shadingNode -asShader lambert;
+setAttr "lambert2.color" -type double3 0 0 0 ;
+shadingNode -asUtility gammaCorrect;
+connectAttr -force gammaCorrect1.outValue lambert2.incandescence;
+shadingNode -asTexture volumeNoise;
+connectAttr -force volumeNoise1.outColor gammaCorrect1.value;
+shadingNode -asUtility place3dTexture;
+connectAttr place3dTexture1.wim[0] volumeNoise1.pm;
+setAttr "volumeNoise1.colorGain" -type double3 0.266357 0.0307131 0.00972134 ;
+setAttr "volumeNoise1.colorOffset" -type double3 0.0761852 0.0109603 0.00477707 ;
+
+
+setKeyframe  "place3dTexture1.translateY";
+keyframe -option over -index 0 -absolute -timeChange 2 place3dTexture1_translateY ;
+setAttr "place3dTexture1.translateY" 5;
+setKeyframe  "place3dTexture1.translateY";
+keyframe -option over -index 0 -absolute -timeChange 800 place3dTexture1_translateY ;
+keyframe -option over -index 0 -absolute -timeChange 1 place3dTexture1_translateY ;
+
+selectKey -add -k -t 1 -t 800 place3dTexture1_translateY ;
+keyTangent -itt linear -ott linear;
+selectKey -clear ;
+selectKey -add -k -t 2 -t 800 place3dTexture1_translateY ;
+keyTangent -itt linear -ott linear;
+shadingNode -asShader lambert;
+setAttr "lambert3.color" -type double3 0 0 0 ;
+shadingNode -asUtility gammaCorrect;
+connectAttr -force gammaCorrect2.outValue lambert3.incandescence;
+shadingNode -asTexture volumeNoise;
+connectAttr -force volumeNoise2.outColor gammaCorrect2.value;
+shadingNode -asUtility place3dTexture;
+connectAttr place3dTexture2.wim[0] volumeNoise2.pm;
+setAttr "volumeNoise2.colorGain" -type double3 0.0630113 0.0395457 0.0231537 ;
+setAttr "volumeNoise2.colorOffset" -type double3 0.0202885 0.0116125 0.006512 ;
+
+
+setKeyframe  "place3dTexture2.translateY";
+keyframe -option over -index 0 -absolute -timeChange 2 place3dTexture2_translateY ;
+setAttr "place3dTexture2.translateY" 5;
+setKeyframe  "place3dTexture2.translateY";
+keyframe -option over -index 0 -absolute -timeChange 800 place3dTexture2_translateY ;
+keyframe -option over -index 0 -absolute -timeChange 1 place3dTexture2_translateY ;
+
+selectKey -add -k -t 1 -t 800 place3dTexture2_translateY ;
+keyTangent -itt linear -ott linear;
+selectKey -clear ;
+selectKey -add -k -t 2 -t 800 place3dTexture2_translateY ;
+keyTangent -itt linear -ott linear;
+shadingNode -asUtility blendColors;
+connectAttr -force lambert2.outColor blendColors1.color1;
+connectAttr -force lambert3.outColor blendColors1.color2;
+
+shadingNode -asShader surfaceShader;
+
+connectAttr -force blendColors1.output surfaceShader1.outColor;
+select -r pTorus1 ;
+select -tgl revolvedSurface2 ;
+select -tgl revolvedSurface1 ;
+hyperShade -assign surfaceShader1;
+}
+
+global proc funcA1 (){
+    setKeyframe { "pCube1.particleSpeedOne" };
+}
+
+global proc funcA2 (){
+    setKeyframe { "pCube1.bodySpeedOne" };
+}
+
+global proc funcB1 (){
+    setKeyframe { "pCube1.particleScale" };
+}
+
+global proc funcB2 (){
+    setKeyframe { "pCube1.bodyParticleScale" };
+}
+
+global proc funcA3 (){
+select -r pCube1;
+string $nodes[] = `listConnections -type animCurveTU`;
+delete $nodes;
+select -cl;
+}
+
+
+global proc newArnold_func4 (){
+select -r AAA_masterIncanBurnBaby ;    
+}
+
+global proc newArnold_func4_2(){
+select -r uv2Ramp;
+}
+
+global proc newArnold_func5 (){
+select -r BBB_masterIncanBurnBaby ;    
+}
+
+global proc selectTransp (){
+    select -r transp;
+}
+
+global proc selectNoise (){
+    select -r aiNoise1;
+}
+
+{
+string $window = `window -widthHeight 430 600 -title "Nuke It 2018" myWindow `;
+columnLayout -bgc .82 .8 .8 -adjustableColumn 1;
+tabLayout -tabsVisible 0 -scrollable 1 -h 900 myTabLayout;
+
+frameLayout -bgc .45 .7 .25 -label "Initial Creation - Undoable Once Run";
+intSliderGrp -label "Sections" -field true -minValue 1 - maxValue 500 -value 180 sectionSlider;
+connectControl sectionSlider pCube1.initialNumber;
+intSliderGrp -label "bodySections" -field true -minValue 1 - maxValue 500 -value 8 bodySection;
+connectControl bodySection pCube1.bodySection;
+floatSliderGrp -label "GroundSubdivision" -field true -minValue 0 - maxValue 10 -value 3 groundSubdivision;
+connectControl groundSubdivision pCube1.groundGeoSubdivision;
+floatSliderGrp -label "GlowAngle" -field true -minValue -180 - maxValue 180 -value -90 GlowAngle;
+connectControl GlowAngle pCube1.curveAngle;
+
+button -bgc .65 .65 .65 -label "SetUpInitialShader" -command "newFunc1";
+button -bgc .65 .65 .65 -label "SetUpForArnold" -command "aNewFunc2";
+button -bgc .65 .65 .65 -label "LinkUp" -command "connect";
+
+frameLayout -bgc .85 .5 .2 -label "Mushroom Head";
+floatSliderGrp -label "Particle Scale" -field true -minValue 0 - maxValue 1000 -value 35 particleScale;
+connectControl particleScale pCube1.particleScale;
+floatSliderGrp -label "SlowDownOne" -field true -minValue 0 - maxValue 100 -value 27 particleSpeedOne;
+connectControl particleSpeedOne pCube1.particleSpeedOne;
+floatSliderGrp -label "ParticleSpeedVariance" -field true -minValue 0 - maxValue 10 -value 3 ParticleSpeedVariance;
+connectControl ParticleSpeedVariance pCube1.particleHeadVarySpeedBy;
+floatSliderGrp -label "EmissionRateOne" -field true -minValue 0 - maxValue 10 -value 1.5 EmissionRateOne;
+connectControl EmissionRateOne pCube1.emissionRateOne;
+floatSliderGrp -label "EmissionRateTwo" -field true -minValue 0 - maxValue 10 -value 3 EmissionRateTwo;
+connectControl EmissionRateTwo pCube1.emissionRateTwo;
+//floatSliderGrp -label "randParticleScaleV" -field true -minValue 0 - maxValue 5 -value 3 randParticleScaleV;
+//connectControl randParticleScaleV pCube1.randV;
+//floatSliderGrp -label "randParticleScaleU" -field true -minValue 0 - maxValue 5 -value .5 randParticleScaleU;
+//connectControl randParticleScaleU pCube1.randU;
+
+button -bgc .65 .65 .65 -label "Run" -command "func";
+button -bgc .65 .65 .65 -label "Spheres" -command "func6";
+button -bgc .65 .65 .65 -label "Cloud" -command "func7";
+
+frameLayout -bgc .85 .5 .2 -label "Mushroom Body";
+
+
+floatSliderGrp -label "Body Particle Scale" -field true -minValue 0 - maxValue 1000 -value 35 BodyParticleScale;
+connectControl BodyParticleScale pCube1.bodyParticleScale;
+connectControl BodyParticleScale pCube1.particleScale2;
+floatSliderGrp -label "BodySlowDownOne" -field true -minValue 0 - maxValue 100 -value 27 particleBodySpeedOne;
+connectControl particleBodySpeedOne pCube1.bodySpeedOne;
+floatSliderGrp -label "BodySpeedVariance" -field true -minValue 0 - maxValue 10 -value 3 BodySpeedVariance;
+connectControl BodySpeedVariance pCube1.particleBodyVarySpeedBy;
+floatSliderGrp -label "EmissionBodyRateOne" -field true -minValue 0 - maxValue 10 -value 1.5 EmissionBodyRateOne;
+connectControl EmissionBodyRateOne pCube1.bodyEmissionRateOne;
+floatSliderGrp -label "EmissionBodyRateTwo" -field true -minValue 0 - maxValue 10 -value 3 EmissionBodyRateTwo;
+connectControl EmissionBodyRateTwo pCube1.bodyEmissionRateTwo;
+//floatSliderGrp -label "randParticleBodyScaleV" -field true -minValue 0 - maxValue 5 -value .05 randParticleBodyScaleV;
+//connectControl randParticleBodyScaleV pCube1.bodyRandV;
+//floatSliderGrp -label "randParticleBodyScaleU" -field true -minValue 0 - maxValue 5 -value .5 randParticleBodyScaleU;
+//connectControl randParticleBodyScaleU pCube1.bodyRandU;
+
+
+
+button -bgc .65 .65 .65 -label "Run Body" -command "func8";
+button -bgc .65 .65 .65 -label "BodySphere" -command "func10";
+button -bgc .65 .65 .65 -label "BodyCloud" -command "func11";
+
+
+frameLayout -bgc .85 .5 .2 -label "Ground Cloud";
+
+floatSliderGrp -label "CloudDensity" -field true -minValue 0 - maxValue 1000000 -value 50000 cloudDensity;
+connectControl cloudDensity pCube1.cloudDensity;
+floatSliderGrp -label "RandParticleSizeOne" -field true -minValue 0 - maxValue 10 -value .5 RandParticleSizeOne;
+connectControl RandParticleSizeOne pCube1.groundRandU;
+floatSliderGrp -label "RandParticleSizeTwo" -field true -minValue 0 - maxValue 10 -value 3 RandParticleSizeTwo;
+connectControl RandParticleSizeTwo pCube1.groundRandV;
+floatSliderGrp -label "ParticleSizeDiv" -field true -minValue 0 - maxValue 20 -value 10 ParticleSizeDiv;
+connectControl ParticleSizeDiv pCube1.groundSizeDiv;
+
+button -bgc .65 .65 .65 -label "Run Ground" -command "func13";
+//button -bgc .6 .65 .7 -label "Randomizer" -command "arnoldfunc2";
+button -bgc .65 .65 .65 -label "Ready Set" -command "func17";
+button -bgc .65 .65 .65 -label "Mame Em Stick" -command "func16";
+button -bgc .65 .65 .65 -label "Spheres" -command "func15";
+button -bgc .65 .65 .65 -label "Cloud" -command "func14";
+
+
+frameLayout -bgc .85 .5 .2 -label "Shader Backing If Needed";
+button -bgc .65 .65 .65 -label "Shader Backing" -command "func18";
+
+frameLayout -bgc .625 .325 .825 -label "Artistic";
+
+button -bgc .65 .65 .65 -label "Burn" -command "newArnold_func4";
+button -bgc .65 .65 .65 -label "NoiseTweak" -command "selectNoise"; 
+button -bgc .65 .65 .65 -label "Body Scalar" -command "newArnold_func4_2";
+button -bgc .65 .65 .65 -label "Transparency" -command "selectTransp"; 
+
+
+frameLayout -bgc .625 .325 .825 -label "Keys";
+
+//button -bgc .6 .65 .7 -label "KeyHeadParticlesSpeed" -command "funcA1";
+//button -bgc .6 .65 .7 -label "KeyBodyParticlesSpeed" -command "funcA2";
+button -bgc .65 .65 .65 -label "KeyHeadScale" -command "funcB1";
+//button -bgc .6 .65 .7 -label "KeyBodyScale" -command "funcB2";
+button -bgc .65 .65 .65 -label "ClearAllKeyFrames" -command "funcA3";
+
+
+frameLayout -bgc .625 .325 .825 -label "LOD Only if Needed";
+
+button -bgc .65 .65 .65 -label "BBox" -command "setPrtlDispPack";
+button -bgc .65 .65 .65 -label "Full Display" -command "setPrtlDispFull";
+//button -bgc .6 .65 .7 -label "BodyBurn" -command "newArnold_func5";
+
+
+
+showWindow $window;
+} 
+
+window -e -wh 430 900 myWindow;
+float $v = `intSliderGrp -q -v sectionSlider`;
+float $numberTotal = $v;
+float $s = `intSliderGrp -q -v bodySection`;
+float $numberBodyTotal = $s;
