@@ -1,0 +1,74 @@
+import maya.cmds as cmds
+import os
+import json
+
+def save_component_tags():
+    sel = cmds.ls(selection=True)
+    if len(sel) > 0:
+        mesh = sel[0]
+        num_tags = cmds.getAttr(f"{mesh}.componentTags", size=True)
+        
+        tags_dic = {}
+        
+        for i in range(num_tags):
+            tag_name = cmds.getAttr(f"{mesh}.componentTags[{i}].componentTagName")
+            tag_contents = cmds.getAttr(f"{mesh}.componentTags[{i}].componentTagContents")
+            tags_dic[tag_name] = tag_contents
+            
+        data_to_save = {mesh: tags_dic}
+        
+        # Print the dictionary
+        for name, contents in tags_dic.items():
+            print(f"{name}: {contents}")
+            
+        # Choose a file path to save the tags
+        file_path = "C:/temp/component_tags.json"
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        
+        with open(file_path, "w") as f:
+            json.dump(data_to_save, f, indent=2)
+        print(f"Component tags saved to {file_path}")
+    else:
+        print("Nothing selected to save.")
+
+def import_component_tags():
+    file_path = "C:/temp/component_tags.json"
+    if not os.path.exists(file_path):
+        print(f"JSON file not found: {file_path}")
+        return
+    
+    with open(file_path, "r") as f:
+        data = json.load(f)
+    
+    mesh_name_in_json = list(data.keys())[0]
+    cmds.select(mesh_name_in_json)
+    sel = cmds.ls(selection=True)
+    if not sel:
+        raise RuntimeError("Select the mesh to import component tags onto.")
+    new_mesh = sel[0]
+    
+    print(f"Using mesh: {new_mesh}")
+    
+    for tag_name, comp_list in data[new_mesh].items():
+        prefixed_comps = [f"{new_mesh}.{c}" for c in comp_list]
+        print(f"Creating component tag '{tag_name}' for: {prefixed_comps}")
+        cmds.componentTag(prefixed_comps, cr=True, newTagName=tag_name)
+    print("Component tags imported successfully.")
+
+
+def component_tags_window():
+    win_name = "componentTagsWindow"
+    
+    if cmds.window(win_name, exists=True):
+        cmds.deleteUI(win_name)
+    
+    cmds.window(win_name, title="Component Tags Tool", widthHeight=(300, 120))
+    cmds.columnLayout(adjustableColumn=True, rowSpacing=10)
+    
+    cmds.button(label="Save Component Tags", command=lambda x: save_component_tags())
+    cmds.button(label="Import Component Tags", command=lambda x: import_component_tags())
+    
+    cmds.showWindow(win_name)
+
+# Open the window
+component_tags_window()
