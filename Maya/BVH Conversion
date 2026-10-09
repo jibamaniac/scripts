@@ -5,13 +5,8 @@ import maya.cmds as cmds
 import maya.mel as mel
 import maya.api.OpenMaya as om
 import maya.api.OpenMayaAnim as oma
-# The UI is optional so this file also runs in mayapy (no Maya window), e.g. for
-# the Kimodo FBX export nodes in ComfyUI. Everything except QtUI works without it.
-try:
-    from maya.app.general.mayaMixin import MayaQWidgetBaseMixin
-    from PySide6 import QtWidgets, QtCore
-except ImportError:
-    MayaQWidgetBaseMixin = QtWidgets = QtCore = None
+from maya.app.general.mayaMixin import MayaQWidgetBaseMixin
+from PySide6 import QtWidgets, QtCore
 
 main_window = None
 
@@ -889,109 +884,27 @@ class MayaBVHImporter:
         cmds.select(root_paths, replace=True)
         return root_paths
 
-    def _find_under(self, root, short_name):
-        """Full path of the joint called `short_name` in `root`'s hierarchy
-        (or anywhere in the scene when no root is given)."""
-        if not root:
-            found = cmds.ls(short_name, type="joint", long=True)
-            return found[0] if found else None
-        hits = cmds.listRelatives(root, allDescendents=True, type="joint", fullPath=True) or []
-        hits.append(cmds.ls(root, long=True)[0])
-        for h in hits:
-            if h.split("|")[-1].split(":")[-1] == short_name:
-                return h
-        return None
-
-    @staticmethod
-    def _axis_angle_matrix(axis, angle):
-        """Maya (row-vector) MMatrix rotating `angle` radians about unit `axis`."""
-        x, y, z = axis.x, axis.y, axis.z
-        c, s = math.cos(angle), math.sin(angle)
-        t = 1.0 - c
-        return om.MMatrix([
-            c + x * x * t, y * x * t + z * s, z * x * t - y * s, 0.0,
-            x * y * t - z * s, c + y * y * t, z * y * t + x * s, 0.0,
-            x * z * t + y * s, y * z * t - x * s, c + z * z * t, 0.0,
-            0.0, 0.0, 0.0, 1.0,
-        ])
-
-    def _lower_arm(self, arm, fore_arm, angle_deg):
-        """Rotate `arm` (rotate attr currently zero) in world space so the
-        arm -> fore_arm bone points `angle_deg` below horizontal. The rotation
-        axis is perpendicular to the bone and world down, so the arm swings
-        straight down without twisting. Returns True on success."""
-        if not arm or not fore_arm or not angle_deg:
-            return False
-        p0 = om.MVector(cmds.xform(arm, q=True, ws=True, t=True))
-        p1 = om.MVector(cmds.xform(fore_arm, q=True, ws=True, t=True))
-        down = om.MVector(0.0, -1.0, 0.0)
-        bone = (p1 - p0).normal()
-        axis = bone ^ down
-        if axis.length() < 1e-6:
-            return False
-        axis.normalize()
-
-        sel = om.MSelectionList()
-        sel.add(arm)
-        world = om.MTransformationMatrix(sel.getDagPath(0).inclusiveMatrix())
-        w_rot = world.rotation(asQuaternion=True).asMatrix()
-        order = cmds.getAttr(arm + ".rotateOrder")
-        ui = om.MAngle.uiUnit()
-        start = math.degrees(math.asin(max(-1.0, min(1.0, -bone.y))))
-
-        # rotate is zero, so world rotation = jointOrient * parent. A world
-        # rotation Rw on top of that is rotate = W * Rw * W^-1. Try both signs
-        # and keep the one that lands on the requested angle.
-        for sign in (1.0, -1.0):
-            rw = self._axis_angle_matrix(axis, math.radians(sign * angle_deg))
-            e = self._matrix_to_euler(w_rot * rw * w_rot.inverse(), order)
-            cmds.setAttr(
-                arm + ".rotate",
-                om.MAngle(e.x).asUnits(ui),
-                om.MAngle(e.y).asUnits(ui),
-                om.MAngle(e.z).asUnits(ui),
-                type="double3",
+    def apply_t_pose(self):
+        '''cmds.select(clear=True)
+        limbs = ["RightArm", "LeftArm", "RightLeg", "LeftLeg"]
+        existing = [limb for limb in limbs if cmds.objExists(limb)]
+        if not existing:
+            return cmds.warning(
+                "No target limb joints found in the scene to reset to T-pose."
             )
-            q1 = om.MVector(cmds.xform(fore_arm, q=True, ws=True, t=True))
-            got = math.degrees(math.asin(max(-1.0, min(1.0, -(q1 - p0).normal().y))))
-            if abs(got - (start + angle_deg)) < 1.0:
-                return True
-        cmds.setAttr(arm + ".rotate", 0, 0, 0, type="double3")
-        cmds.warning(f"Could not lower {arm} into the A-pose.")
-        return False
 
-    def apply_rest_pose(self, root=None, pose="tpose", apose_angle=29.0):
-        """Put a Kimodo skeleton into its rest stance at the current frame,
-        ready for a HumanIK definition. "tpose" is the solved T-pose;
-        "apose" then lowers both arms by `apose_angle` degrees."""
-        root = root or self._find_under(None, "Root")
-        if not root:
-            cmds.warning("No Kimodo 'Root' joint found to pose.")
-            return False
-        joints = cmds.listRelatives(root, allDescendents=True, type="joint", fullPath=True) or []
-        joints.append(cmds.ls(root, long=True)[0])
-        for joint in joints:
+        cmds.select(existing, replace=True)'''
+        cmds.select("Root", replace=True)
+        cmds.select(hierarchy=True)
+        mel.eval("select -d LeftShoulder;")
+        mel.eval("select -d RightShoulder;")
+        selected_joints = cmds.ls(selection=True, type="joint")
+        for joint in selected_joints:
             cmds.setAttr(f"{joint}.rotate", 0, 0, 0)
-
-        # Kimodo's right-side bones are rolled 180 degrees relative to the
-        # left; this puts the right palm back in line with the left one.
-        right_shoulder = self._find_under(root, "RightShoulder")
-        if right_shoulder:
-            cmds.setAttr(right_shoulder + ".rotate", 180, 0, 0)
-
-        if pose == "apose":
-            for side in ("Left", "Right"):
-                self._lower_arm(
-                    self._find_under(root, f"{side}Arm"),
-                    self._find_under(root, f"{side}ForeArm"),
-                    apose_angle,
-                )
+        cmds.setAttr('RightShoulder.rotate', 180, 0, 0)
+        cmds.setAttr('LeftShoulder.rotate', 0, 0, 0)
         cmds.select(clear=True)
-        return True
-
-    def apply_t_pose(self, root=None):
-        return self.apply_rest_pose(root, "tpose")
-
+            
 import maya.cmds as cmds
 import maya.mel as mel
 
@@ -1134,8 +1047,6 @@ class HIKCharacterBuilder:
         return None
 
     def create(self):
-        if cmds.about(batch=True):
-            return self._create_batch()
         mel.eval("HIKCharacterControlsTool;")
         char_node = mel.eval(f'hikCreateCharacter("{self.char_name}")')
         char_node = char_node or self.char_name
@@ -1168,35 +1079,6 @@ class HIKCharacterBuilder:
             mel.eval("hikUpdateDefinitionUI;")
         except RuntimeError:
             pass
-
-        self._print_report(char_node, assigned, missing_joints, bad_slots)
-        return char_node
-
-    def _create_batch(self):
-        """create() without the HumanIK window, for mayapy. Builds the
-        HIKCharacterNode and connects each joint to its slot directly."""
-        if not cmds.pluginInfo("mayaHIK", query=True, loaded=True):
-            cmds.loadPlugin("mayaHIK")
-        char_node = cmds.createNode("HIKCharacterNode", name=self.char_name)
-
-        assigned, missing_joints, bad_slots = [], [], []
-        for slot_name, joint_name in self.mapping.items():
-            if not cmds.attributeQuery(slot_name, node=char_node, exists=True):
-                bad_slots.append(slot_name)
-                continue
-            joint = self._find_joint(joint_name)
-            if not joint:
-                missing_joints.append(f"{slot_name}  <-  {joint_name}")
-                continue
-            if not cmds.attributeQuery("Character", node=joint, exists=True):
-                cmds.addAttr(joint, longName="Character", attributeType="message")
-            cmds.connectAttr(joint + ".Character", f"{char_node}.{slot_name}", force=True)
-            assigned.append((slot_name, joint.split("|")[-1]))
-
-        if self.lock_definition and cmds.attributeQuery(
-            "InputCharacterizationLock", node=char_node, exists=True
-        ):
-            cmds.setAttr(char_node + ".InputCharacterizationLock", 1)
 
         self._print_report(char_node, assigned, missing_joints, bad_slots)
         return char_node
@@ -1382,188 +1264,149 @@ class CCCharacterDefinition:
         print("=" * 60)
 
     
-if QtWidgets is not None:
-    class QtUI(MayaQWidgetBaseMixin, QtWidgets.QWidget):
-        def __init__(self, parent=None):
-            super(QtUI, self).__init__(parent=parent)
-            self.setWindowFlags(QtCore.Qt.Window)
-            self.setObjectName("bvh_import")
-            self.setWindowTitle("Bvh Import")
+class QtUI(MayaQWidgetBaseMixin, QtWidgets.QWidget):
+    def __init__(self, parent=None):
+        super(QtUI, self).__init__(parent=parent)
+        self.setWindowFlags(QtCore.Qt.Window)
+        self.setObjectName("bvh_import")
+        self.setWindowTitle("Bvh Import")
 
-            # Window Layouts
-            main_layout = QtWidgets.QVBoxLayout(self)
-            file_layout = QtWidgets.QHBoxLayout()
-            scale_layout = QtWidgets.QHBoxLayout()
-            start_frame_layout = QtWidgets.QHBoxLayout()
-            zero_pose_frame_layout = QtWidgets.QHBoxLayout()
-            kim_ik_layout = QtWidgets.QHBoxLayout()
-            cc_ik_layout = QtWidgets.QHBoxLayout()
+        # Window Layouts
+        main_layout = QtWidgets.QVBoxLayout(self)
+        file_layout = QtWidgets.QHBoxLayout()
+        scale_layout = QtWidgets.QHBoxLayout()
+        start_frame_layout = QtWidgets.QHBoxLayout()
+        zero_pose_frame_layout = QtWidgets.QHBoxLayout()
+        kim_ik_layout = QtWidgets.QHBoxLayout()
+        cc_ik_layout = QtWidgets.QHBoxLayout()
 
-            # Widgets - File Row
-            file_label = QtWidgets.QLabel("File")
-            self.path_field = QtWidgets.QLineEdit()
-            browse_button = QtWidgets.QPushButton("Browse...")
+        # Widgets - File Row
+        file_label = QtWidgets.QLabel("File")
+        self.path_field = QtWidgets.QLineEdit()
+        browse_button = QtWidgets.QPushButton("Browse...")
 
-            file_layout.addWidget(file_label)
-            file_layout.addWidget(self.path_field)
-            file_layout.addWidget(browse_button)
+        file_layout.addWidget(file_label)
+        file_layout.addWidget(self.path_field)
+        file_layout.addWidget(browse_button)
 
-            # Widgets - Scale Row
-            scale_label = QtWidgets.QLabel("Scale")
-            self.scale_field = QtWidgets.QDoubleSpinBox()
-            self.scale_field.setDecimals(4)
-            self.scale_field.setRange(0.0001, 1000.0)
-            self.scale_field.setValue(1.0)
-            self.scale_field.setSingleStep(0.1)
-            scale_layout.addWidget(scale_label)
-            scale_layout.addWidget(self.scale_field)
+        # Widgets - Scale Row
+        scale_label = QtWidgets.QLabel("Scale")
+        self.scale_field = QtWidgets.QDoubleSpinBox()
+        self.scale_field.setDecimals(4)
+        self.scale_field.setRange(0.0001, 1000.0)
+        self.scale_field.setValue(1.0)
+        self.scale_field.setSingleStep(0.1)
+        scale_layout.addWidget(scale_label)
+        scale_layout.addWidget(self.scale_field)
 
-            # Widgets - Start Frame Row
-            start_frame_label = QtWidgets.QLabel("Start Frame")
-            self.start_frame_field = QtWidgets.QSpinBox()
-            self.start_frame_field.setRange(-10000, 10000)
-            self.start_frame_field.setValue(1)
-            start_frame_layout.addWidget(start_frame_label)
-            start_frame_layout.addWidget(self.start_frame_field)
+        # Widgets - Start Frame Row
+        start_frame_label = QtWidgets.QLabel("Start Frame")
+        self.start_frame_field = QtWidgets.QSpinBox()
+        self.start_frame_field.setRange(-10000, 10000)
+        self.start_frame_field.setValue(1)
+        start_frame_layout.addWidget(start_frame_label)
+        start_frame_layout.addWidget(self.start_frame_field)
 
-            # Widgets - Zero Pose Frame Row
-            zero_pose_frame_label = QtWidgets.QLabel("Zero Pose Frame")
-            self.zero_pose_frame_field = QtWidgets.QSpinBox()
-            self.zero_pose_frame_field.setRange(-10000, 10000)
-            self.zero_pose_frame_field.setValue(-1)
-            zero_pose_frame_layout.addWidget(zero_pose_frame_label)
-            zero_pose_frame_layout.addWidget(self.zero_pose_frame_field)
+        # Widgets - Zero Pose Frame Row
+        zero_pose_frame_label = QtWidgets.QLabel("Zero Pose Frame")
+        self.zero_pose_frame_field = QtWidgets.QSpinBox()
+        self.zero_pose_frame_field.setRange(-10000, 10000)
+        self.zero_pose_frame_field.setValue(-1)
+        zero_pose_frame_layout.addWidget(zero_pose_frame_label)
+        zero_pose_frame_layout.addWidget(self.zero_pose_frame_field)
 
-            # Check Boxes
-            self.fps_checkbox = QtWidgets.QCheckBox("Set scene frame rate from BVH")
-            self.fps_checkbox.setChecked(True)
+        # Check Boxes
+        self.fps_checkbox = QtWidgets.QCheckBox("Set scene frame rate from BVH")
+        self.fps_checkbox.setChecked(True)
 
-            self.pbr_checkbox = QtWidgets.QCheckBox("Set playback range")
-            self.pbr_checkbox.setChecked(True)
+        self.pbr_checkbox = QtWidgets.QCheckBox("Set playback range")
+        self.pbr_checkbox.setChecked(True)
 
-            self.jts_checkbox = QtWidgets.QCheckBox("Create End Site Joints")
-            self.jts_checkbox.setChecked(True)
+        self.jts_checkbox = QtWidgets.QCheckBox("Create End Site Joints")
+        self.jts_checkbox.setChecked(True)
 
-            self.elr_checkbox = QtWidgets.QCheckBox("Euler filter rotations")
-            self.elr_checkbox.setChecked(True)
+        self.elr_checkbox = QtWidgets.QCheckBox("Euler filter rotations")
+        self.elr_checkbox.setChecked(True)
 
-            self.zup_checkbox = QtWidgets.QCheckBox("Z-Up")
-            self.zup_checkbox.setChecked(False)
+        self.zup_checkbox = QtWidgets.QCheckBox("Z-Up")
+        self.zup_checkbox.setChecked(False)
 
-            self.org_checkbox = QtWidgets.QCheckBox("Start at Origin")
-            self.org_checkbox.setChecked(False)
+        self.org_checkbox = QtWidgets.QCheckBox("Start at Origin")
+        self.org_checkbox.setChecked(False)
 
-            # Kimodo setup run as part of Import: rest stance + HumanIK definition
-            self.kimodo_checkbox = QtWidgets.QCheckBox("Kimodo: pose + Human_IK on import")
-            self.kimodo_checkbox.setChecked(True)
+        # Add to Layout
+        main_layout.addLayout(file_layout)
+        main_layout.addLayout(scale_layout)
+        main_layout.addLayout(start_frame_layout)
+        main_layout.addLayout(zero_pose_frame_layout)
+        main_layout.addWidget(self.fps_checkbox)
+        main_layout.addWidget(self.pbr_checkbox)
+        main_layout.addWidget(self.jts_checkbox)
+        main_layout.addWidget(self.elr_checkbox)
+        main_layout.addWidget(self.zup_checkbox)
+        main_layout.addWidget(self.org_checkbox)
 
-            pose_layout = QtWidgets.QHBoxLayout()
-            pose_label = QtWidgets.QLabel("Stance")
-            self.tpose_radio = QtWidgets.QRadioButton("T-Pose")
-            self.apose_radio = QtWidgets.QRadioButton("A-Pose")
-            self.apose_radio.setChecked(True)
-            self.apose_angle_field = QtWidgets.QDoubleSpinBox()
-            self.apose_angle_field.setRange(0.0, 90.0)
-            self.apose_angle_field.setDecimals(1)
-            self.apose_angle_field.setSuffix(" deg")
-            self.apose_angle_field.setValue(29.0)  # CC3 girlTest3 arms sit ~29 deg below horizontal
-            self.apose_angle_field.setToolTip("How far below horizontal the arms go in the A-pose")
-            pose_layout.addWidget(pose_label)
-            pose_layout.addWidget(self.tpose_radio)
-            pose_layout.addWidget(self.apose_radio)
-            pose_layout.addWidget(self.apose_angle_field)
-            self.apose_radio.toggled.connect(self.apose_angle_field.setEnabled)
+        # Action Buttons
+        self.kimodo = QtWidgets.QPushButton("Kimodo: T_Pose")
+        self.import_button = QtWidgets.QPushButton("Import")
+        self.kim_ik_button = QtWidgets.QPushButton("Kimodo: Human_IK")
+        self.cc_ik_layout_button = QtWidgets.QPushButton("CC3: Human_IK")
 
-            # Add to Layout
-            main_layout.addLayout(file_layout)
-            main_layout.addLayout(scale_layout)
-            main_layout.addLayout(start_frame_layout)
-            main_layout.addLayout(zero_pose_frame_layout)
-            main_layout.addWidget(self.fps_checkbox)
-            main_layout.addWidget(self.pbr_checkbox)
-            main_layout.addWidget(self.jts_checkbox)
-            main_layout.addWidget(self.elr_checkbox)
-            main_layout.addWidget(self.zup_checkbox)
-            main_layout.addWidget(self.org_checkbox)
-            main_layout.addWidget(self.kimodo_checkbox)
-            main_layout.addLayout(pose_layout)
+        main_layout.addWidget(self.import_button)
+        main_layout.addWidget(self.kimodo)
+        main_layout.addWidget(self.kim_ik_button)
+        main_layout.addWidget(self.cc_ik_layout_button)
 
-            # Action Buttons
-            self.import_button = QtWidgets.QPushButton("Import")
-            self.cc_ik_layout_button = QtWidgets.QPushButton("CC3: Human_IK")
+        # Connect Signals
+        browse_button.clicked.connect(self.browse_file)
+        self.kimodo.clicked.connect(self.kimodo_onClicked)
+        self.import_button.clicked.connect(self.import_button_onClicked)
+        self.kim_ik_button.clicked.connect(self.kim_ik_button_onClicked)
+        self.cc_ik_layout_button.clicked.connect(self.cc_ik_button_onClicked)
 
-            main_layout.addWidget(self.import_button)
-            main_layout.addWidget(self.cc_ik_layout_button)
+    # Callbacks
+    def browse_file(self):
+        picked = cmds.fileDialog2(
+            fileMode=1,
+            caption="Select BVH File",
+            fileFilter="BVH Motion Capture (*.bvh);;All Files(*.*)",
+        )
+        if picked:
+            self.path_field.setText(picked[0])
 
-            # Connect Signals
-            browse_button.clicked.connect(self.browse_file)
-            self.import_button.clicked.connect(self.import_button_onClicked)
-            self.cc_ik_layout_button.clicked.connect(self.cc_ik_button_onClicked)
+    def kimodo_onClicked(self):
+        importer = MayaBVHImporter()
+        importer.apply_t_pose()
 
-        # Callbacks
-        def browse_file(self):
-            picked = cmds.fileDialog2(
-                fileMode=1,
-                caption="Select BVH File",
-                fileFilter="BVH Motion Capture (*.bvh);;All Files(*.*)",
-            )
-            if picked:
-                self.path_field.setText(picked[0])
+    def import_button_onClicked(self):
+        path = self.path_field.text().strip()
+        if not path:
+            return cmds.warning("Choose a .bvh file first.")
 
-        def kimodo_onClicked(self, root=None):
-            importer = MayaBVHImporter()
-            pose = "apose" if self.apose_radio.isChecked() else "tpose"
-            return importer.apply_rest_pose(root, pose, self.apose_angle_field.value())
+        zero_frame = self.zero_pose_frame_field.value()
+        rest_pose = zero_frame if zero_frame >= 0 else None
 
-        def import_button_onClicked(self):
-            path = self.path_field.text().strip()
-            if not path:
-                return cmds.warning("Choose a .bvh file first.")
-
-            zero_frame = self.zero_pose_frame_field.value()
-            rest_pose = zero_frame if zero_frame >= 0 else None
-
-            importer = MayaBVHImporter(
-                path=path,
-                scale=self.scale_field.value(),
-                start_frame=self.start_frame_field.value(),
-                set_fps=self.fps_checkbox.isChecked(),
-                set_range=self.pbr_checkbox.isChecked(),
-                end_sites=self.jts_checkbox.isChecked(),
-                euler_filter=self.elr_checkbox.isChecked(),
-                z_up_to_y=self.zup_checkbox.isChecked(),
-                start_at_origin=self.org_checkbox.isChecked(),
-                rest_pose_frame=rest_pose,
-                tpose=True,
-            )
-            root_paths = importer.execute()
-
-            if root_paths and self.kimodo_checkbox.isChecked():
-                pose = "apose" if self.apose_radio.isChecked() else "tpose"
-                setup_kimodo(root_paths[0], pose, self.apose_angle_field.value())
-
-        def kim_ik_button_onClicked(self, root=None):
-            kim_ik_set = HIKCharacterBuilder(root=root)
-            kim_ik_set.create()
+        importer = MayaBVHImporter(
+            path=path,
+            scale=self.scale_field.value(),
+            start_frame=self.start_frame_field.value(),
+            set_fps=self.fps_checkbox.isChecked(),
+            set_range=self.pbr_checkbox.isChecked(),
+            end_sites=self.jts_checkbox.isChecked(),
+            euler_filter=self.elr_checkbox.isChecked(),
+            z_up_to_y=self.zup_checkbox.isChecked(),
+            start_at_origin=self.org_checkbox.isChecked(),
+            rest_pose_frame=rest_pose,
+            tpose=True,
+        )
+        importer.execute()
+    def kim_ik_button_onClicked(self):
+        kim_ik_set = HIKCharacterBuilder()
+        kim_ik_set.create()
         
-        def cc_ik_button_onClicked(self):
-            cc_ik_set = CCCharacterDefinition()
-            cc_ik_set.create()
-
-def setup_kimodo(root, pose="apose", apose_angle=29.0, humanik=True):
-    """The Kimodo step of Import: put the skeleton into its T-pose or A-pose
-    stance at the current frame, then add the Kimodo HumanIK definition.
-    Returns the HIK character node (or root without HumanIK), None if skipped."""
-    importer = MayaBVHImporter()
-    if not importer._find_under(root, "Hips") or not importer._find_under(root, "LeftArm"):
-        cmds.warning("Not a Kimodo skeleton; skipped the pose and Human_IK setup.")
-        return None
-    if not importer.apply_rest_pose(root, pose, apose_angle):
-        return None
-    if not humanik:
-        return root
-    return HIKCharacterBuilder(root=root).create()
-
+    def cc_ik_button_onClicked(self):
+        cc_ik_set = CCCharacterDefinition()
+        cc_ik_set.create()
 
 def show_ui():
     global main_window
@@ -1583,5 +1426,4 @@ def import_bvh(**kwargs):
     return MayaBVHImporter(**kwargs).execute()
 
 
-if not cmds.about(batch=True):
-    show_ui()
+show_ui()
