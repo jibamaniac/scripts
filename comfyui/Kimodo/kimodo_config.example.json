@@ -1,5 +1,4 @@
 {
   "kimodo_repo": "C:/path/to/kimodo",
-  "python": "C:/path/to/kimodo/venv/Scripts/python.exe",
-  "blender": "C:/Program Files/Blender Foundation/Blender 4.2/blender.exe"
+  "python": "C:/path/to/kimodo/venv/Scripts/python.exe"
 }
