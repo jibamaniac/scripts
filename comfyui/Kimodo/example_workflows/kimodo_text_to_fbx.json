@@ -1,0 +1,236 @@
+{
+  "last_node_id": 5,
+  "last_link_id": 4,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "KimodoLoadModel",
+      "pos": [
+        40,
+        120
+      ],
+      "size": [
+        320,
+        130
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "model",
+          "type": "KIMODO_MODEL",
+          "links": [
+            1
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KimodoLoadModel"
+      },
+      "widgets_values": [
+        "kimodo-soma-rp",
+        "kimodo_venv",
+        true
+      ]
+    },
+    {
+      "id": 2,
+      "type": "PrimitiveStringMultiline",
+      "pos": [
+        40,
+        300
+      ],
+      "size": [
+        380,
+        200
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            2
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PrimitiveStringMultiline"
+      },
+      "widgets_values": [
+        "A person walks forward and waves. The person sits down on a chair."
+      ]
+    },
+    {
+      "id": 3,
+      "type": "KimodoSampler",
+      "pos": [
+        470,
+        120
+      ],
+      "size": [
+        320,
+        260
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "KIMODO_MODEL",
+          "link": 1
+        },
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "link": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "motion",
+          "type": "KIMODO_MOTION",
+          "links": [
+            3
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KimodoSampler"
+      },
+      "widgets_values": [
+        5.0,
+        42,
+        "fixed",
+        100,
+        2.0,
+        5,
+        true
+      ]
+    },
+    {
+      "id": 4,
+      "type": "KimodoSaveBVH",
+      "pos": [
+        840,
+        120
+      ],
+      "size": [
+        320,
+        150
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "motion",
+          "type": "KIMODO_MOTION",
+          "link": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "bvh_path",
+          "type": "STRING",
+          "links": [
+            4
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KimodoSaveBVH"
+      },
+      "widgets_values": [
+        "kimodo/motion",
+        false,
+        false
+      ]
+    },
+    {
+      "id": 5,
+      "type": "KimodoFBXExportAPose",
+      "pos": [
+        1210,
+        120
+      ],
+      "size": [
+        320,
+        130
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "bvh_path",
+          "type": "STRING",
+          "link": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "fbx_path",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KimodoFBXExportAPose"
+      },
+      "widgets_values": [
+        true,
+        true,
+        29.0
+      ]
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      3,
+      0,
+      "KIMODO_MODEL"
+    ],
+    [
+      2,
+      2,
+      0,
+      3,
+      1,
+      "STRING"
+    ],
+    [
+      3,
+      3,
+      0,
+      4,
+      0,
+      "KIMODO_MOTION"
+    ],
+    [
+      4,
+      4,
+      0,
+      5,
+      0,
+      "STRING"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {},
+  "version": 0.4
+}
