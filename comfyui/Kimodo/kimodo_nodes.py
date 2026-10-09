@@ -26,6 +26,7 @@ import uuid
 import folder_paths
 
 from . import kimodo_runner
+from .hand_pose import HAND_POSES, apply_hand_pose
 
 RUNNER_PATH = os.path.abspath(kimodo_runner.__file__)
 CONFIG_PATH = os.path.join(os.path.dirname(RUNNER_PATH), "kimodo_config.json")
@@ -266,10 +267,14 @@ class KimodoSaveBVH:
                     "tooltip": "Rest pose = standard T-pose instead of the BONES-SEED rest pose.",
                 }),
                 "save_npz": ("BOOLEAN", {"default": False, "tooltip": "Also keep the Kimodo .npz next to the .bvh."}),
+                "hand_pose": (HAND_POSES, {
+                    "default": "none",
+                    "tooltip": "Kimodo doesn't animate fingers. 'fist' holds both hands closed for the whole clip.",
+                }),
             }
         }
 
-    def save(self, motion, filename_prefix, standard_tpose, save_npz):
+    def save(self, motion, filename_prefix, standard_tpose, save_npz, hand_pose="none"):
         stem = _next_output_stem(filename_prefix)
         result = _call(
             motion["backend"], "export_bvh",
@@ -279,6 +284,7 @@ class KimodoSaveBVH:
             fps=motion["fps"],
             standard_tpose=standard_tpose,
         )
+        apply_hand_pose(result["bvh_path"], hand_pose)
         if save_npz:
             shutil.copyfile(motion["npz_path"], stem + ".npz")
         bvh_path = result["bvh_path"]
