@@ -7,7 +7,7 @@ ComfyUI nodes that turn a text prompt into a `.bvh` motion file with
 |---|---|---|
 | Kimodo Load Model | Load Checkpoint | Picks the SOMA model and backend, loads it once |
 | Kimodo Sampler | KSampler | Takes the prompt from any text node (e.g. core `Text (Multiline)`); seconds per sentence, seed, steps, cfg, transition frames, foot-skate cleanup |
-| Kimodo Save BVH | Save Image | Writes `ComfyUI/output/kimodo/motion_00001.bvh` (+ optional .npz); `hand_pose = fist` closes both hands |
+| Kimodo Save BVH | Save Image | Writes `ComfyUI/output/kimodo/motion_00001.bvh` (+ optional .npz and .fbx); `hand_pose = fist` closes both hands |
 
 Sentences separated by `.` play back to back, each `duration` seconds long.
 Sampler defaults are Kimodo's own: duration 5, steps 100, cfg 2.0, transition frames 5, post-processing on.
@@ -35,7 +35,9 @@ process, so nothing gets installed into ComfyUI's Python.
    - `python`: the Python of the venv you installed Kimodo into
      (optional if the venv is `venv/` or `.venv/` inside the checkout or its parent folder).
 
-   Environment variables `KIMODO_REPO` and `KIMODO_PYTHON` override the file.
+   - `blender` (optional, only for FBX export): path to `blender.exe`.
+
+   Environment variables `KIMODO_REPO`, `KIMODO_PYTHON` and `KIMODO_BLENDER` override the file.
 3. Restart ComfyUI. The nodes are in the `Kimodo` category.
 4. Drag `example_workflows/kimodo_text_to_bvh.json` onto the canvas.
 
@@ -50,5 +52,11 @@ If the path is wrong or missing, the Load Model node fails with a message saying
 - BVH export only exists for SOMA models, so the model list is SOMA only.
 - Kimodo doesn't animate fingers; they stay in a relaxed rest pose. `hand_pose = fist` on Save BVH
   writes a constant closed fist into the finger channels (everything else is unchanged).
+- FBX export: turn on `fbx` on Save BVH. The .bvh is still written; Blender then converts it in the
+  background (no window) into a skeleton-only `.fbx` next to it, with every frame keyed. Install
+  [Blender](https://www.blender.org/download/) (free) and set `blender` in `kimodo_config.json`.
+  `fbx_units = centimeters` keeps the BVH's numbers (Maya's default unit); `meters` divides by 100.
+  Blender builds its own bone orientations, so joint orients and rotation values in the FBX differ from
+  the BVH even though the motion is the same.
 - `standard_tpose` off gives the same rest pose as Kimodo's native BVH export (BONES-SEED rest pose).
 - The motion is held as a temp .npz in `ComfyUI/temp/kimodo` until Save BVH converts it.

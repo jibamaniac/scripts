@@ -41,6 +41,41 @@ def _venv_python(folder):
     return None
 
 
+def _load_config():
+    if not os.path.isfile(CONFIG_PATH):
+        return {}
+    with open(CONFIG_PATH, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def blender_path():
+    """Blender executable for FBX export: KIMODO_BLENDER env var or "blender" in kimodo_config.json."""
+    blender = os.environ.get("KIMODO_BLENDER") or _load_config().get("blender")
+    if not blender:
+        raise RuntimeError(
+            "FBX export needs Blender. Set \"blender\" in kimodo_config.json to blender.exe "
+            "(e.g. C:/Program Files/Blender Foundation/Blender 4.2/blender.exe) or set KIMODO_BLENDER.")
+    blender = os.path.expanduser(blender)
+    if not os.path.isfile(blender):
+        raise RuntimeError(f"Blender not found at {blender!r}; check \"blender\" in kimodo_config.json.")
+    return blender
+
+
+def bvh_to_fbx(bvh_path, fbx_path, units):
+    """Convert with Blender in the background (see blender_bvh_to_fbx.py)."""
+    script = os.path.join(os.path.dirname(RUNNER_PATH), "blender_bvh_to_fbx.py")
+    proc = subprocess.run(
+        [blender_path(), "--background", "--factory-startup", "--python-exit-code", "1",
+         "--python", script, "--", bvh_path, fbx_path, units],
+        stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+        creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+    )
+    log = proc.stdout.decode("utf-8", errors="replace")
+    if proc.returncode != 0 or not os.path.isfile(fbx_path):
+        raise RuntimeError(f"Blender FBX export failed (exit {proc.returncode}):\n" + "\n".join(log.splitlines()[-20:]))
+    return fbx_path
+
+
 def kimodo_paths():
     """Return (repo, python): the Kimodo checkout (the folder that contains the
     `kimodo` package) and the Python interpreter that has Kimodo installed.
@@ -48,10 +83,7 @@ def kimodo_paths():
     Env vars KIMODO_REPO / KIMODO_PYTHON win over kimodo_config.json. If no
     python is given, a venv/ or .venv/ in the repo or its parent folder is used.
     """
-    cfg = {}
-    if os.path.isfile(CONFIG_PATH):
-        with open(CONFIG_PATH, encoding="utf-8") as f:
-            cfg = json.load(f)
+    cfg = _load_config()
     repo = os.environ.get("KIMODO_REPO") or cfg.get("kimodo_repo")
     python = os.environ.get("KIMODO_PYTHON") or cfg.get("python")
     if not repo:
@@ -253,8 +285,8 @@ class KimodoSaveBVH:
     CATEGORY = "Kimodo"
     FUNCTION = "save"
     OUTPUT_NODE = True
-    RETURN_TYPES = ("STRING",)
-    RETURN_NAMES = ("bvh_path",)
+    RETURN_TYPES = ("STRING", "STRING")
+    RETURN_NAMES = ("bvh_path", "fbx_path")
 
     @classmethod
     def INPUT_TYPES(cls):
@@ -271,10 +303,19 @@ class KimodoSaveBVH:
                     "default": "none",
                     "tooltip": "Kimodo doesn't animate fingers. 'fist' holds both hands closed for the whole clip.",
                 }),
+                "fbx": ("BOOLEAN", {
+                    "default": False,
+                    "tooltip": "Also write an .fbx next to the .bvh (needs Blender, see README).",
+                }),
+                "fbx_units": (["centimeters", "meters"], {
+                    "default": "centimeters",
+                    "tooltip": "centimeters matches the BVH and Maya's default; meters divides by 100.",
+                }),
             }
         }
 
-    def save(self, motion, filename_prefix, standard_tpose, save_npz, hand_pose="none"):
+    def save(self, motion, filename_prefix, standard_tpose, save_npz, hand_pose="none",
+             fbx=False, fbx_units="centimeters"):
         stem = _next_output_stem(filename_prefix)
         result = _call(
             motion["backend"], "export_bvh",
@@ -288,9 +329,12 @@ class KimodoSaveBVH:
         if save_npz:
             shutil.copyfile(motion["npz_path"], stem + ".npz")
         bvh_path = result["bvh_path"]
+        fbx_path = bvh_to_fbx(bvh_path, stem + ".fbx", fbx_units) if fbx else ""
         summary = f"{os.path.basename(bvh_path)}: {result['frames']} frames @ {motion['fps']:g} fps ({motion['model']})"
-        print(f"[Kimodo] Saved {bvh_path}", flush=True)
-        return {"ui": {"text": [summary]}, "result": (bvh_path,)}
+        if fbx_path:
+            summary += f" + {os.path.basename(fbx_path)}"
+        print(f"[Kimodo] Saved {bvh_path}" + (f" and {fbx_path}" if fbx_path else ""), flush=True)
+        return {"ui": {"text": [summary]}, "result": (bvh_path, fbx_path)}
 
 
 NODE_CLASS_MAPPINGS = {

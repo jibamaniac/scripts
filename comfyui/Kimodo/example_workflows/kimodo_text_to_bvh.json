@@ -143,6 +143,11 @@
           "name": "bvh_path",
           "type": "STRING",
           "links": null
+        },
+        {
+          "name": "fbx_path",
+          "type": "STRING",
+          "links": null
         }
       ],
       "properties": {
@@ -152,7 +157,9 @@
         "kimodo/motion",
         false,
         false,
-        "none"
+        "none",
+        false,
+        "centimeters"
       ]
     }
   ],
