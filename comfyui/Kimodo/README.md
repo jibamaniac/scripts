@@ -29,8 +29,13 @@ process, so nothing gets installed into ComfyUI's Python.
 ## 2. Install the nodes
 
 1. Copy this `ComfyUI-Kimodo` folder into `ComfyUI/custom_nodes/`
-   (or `git clone` this repo and copy/symlink `comfyui/ComfyUI-Kimodo`).
-2. Copy `kimodo_config.example.json` to `kimodo_config.json` in the same folder and set:
+   (or `git clone` this repo and copy/symlink `comfyui/Kimodo` as `ComfyUI-Kimodo`).
+2. Double-click `setup_kimodo.bat` in that folder (Windows). It looks for Kimodo in the usual places
+   (next to ComfyUI, your user folder, `X:\kimodo`, `X:\projects\kimodo`, `X:\AI\kimodo`) and asks you to pick
+   the folder if it can't find it. It then finds Kimodo's venv Python, checks that it can see Kimodo and torch,
+   and writes `kimodo_config.json` next to the nodes. You can also pass the folder: `setup_kimodo.bat E:\projects\kimodo`.
+
+   To do it by hand instead, copy `kimodo_config.example.json` to `kimodo_config.json` in the same folder and set:
    - `kimodo_repo`: the Kimodo checkout, i.e. the folder that contains the `kimodo` package folder.
    - `python`: the Python of the venv you installed Kimodo into
      (optional if the venv is `venv/` or `.venv/` inside the checkout or its parent folder).
