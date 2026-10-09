@@ -7,7 +7,7 @@ ComfyUI nodes that turn a text prompt into a `.bvh` motion file (and optionally 
 |---|---|---|
 | Kimodo Load Model | Load Checkpoint | Picks the SOMA model and backend, loads it once |
 | Kimodo Sampler | KSampler | Takes the prompt from any text node (e.g. core `Text (Multiline)`); seconds per sentence, seed, steps, cfg, transition frames, foot-skate cleanup |
-| Kimodo Save BVH | Save Image | Writes `ComfyUI/output/kimodo/motion_00001.bvh` (+ optional .npz) |
+| Kimodo Save BVH | Save Image | Writes `ComfyUI/output/kimodo/motion_00001.bvh` (+ optional .npz); `hand_pose = fist` closes both hands |
 | Kimodo FBX Export (T-Pose) | | Turns that BVH into `motion_00001_tpose.fbx` through Maya (optional, needs Maya) |
 | Kimodo FBX Export (A-Pose) | | Same, with the arms lowered into an A-pose (29° below horizontal by default) |
 
@@ -77,5 +77,7 @@ as `[Kimodo FBX]` lines, and the node shows the last lines if the export fails.
 
 ## Notes
 - BVH export only exists for SOMA models, so the model list is SOMA only.
+- Kimodo doesn't animate fingers; they stay in a relaxed rest pose. `hand_pose = fist` on Save BVH
+  writes a constant closed fist into the finger channels (everything else is unchanged).
 - `standard_tpose` off gives the same rest pose as Kimodo's native BVH export (BONES-SEED rest pose).
 - The motion is held as a temp .npz in `ComfyUI/temp/kimodo` until Save BVH converts it.
