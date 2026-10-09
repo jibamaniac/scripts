@@ -1,13 +1,13 @@
 # ComfyUI-Kimodo
 
-ComfyUI nodes that turn a text prompt into a `.bvh` (and optionally `.fbx`) motion file with
+ComfyUI nodes that turn a text prompt into a `.bvh` motion file with
 [Kimodo](https://github.com/nv-tlabs/kimodo), NVIDIA's text-to-motion model.
 
 | Node | Like | Does |
 |---|---|---|
 | Kimodo Load Model | Load Checkpoint | Picks the SOMA model and backend, loads it once |
 | Kimodo Sampler | KSampler | Takes the prompt from any text node (e.g. core `Text (Multiline)`); seconds per sentence, seed, steps, cfg, transition frames, foot-skate cleanup |
-| Kimodo Save BVH | Save Image | Writes `ComfyUI/output/kimodo/motion_00001.bvh` (+ optional .npz, and .fbx through Maya); `hand_pose = fist` closes both hands |
+| Kimodo Save BVH | Save Image | Writes `ComfyUI/output/kimodo/motion_00001.bvh` (+ optional .npz); `hand_pose = fist` closes both hands |
 
 Sentences separated by `.` play back to back, each `duration` seconds long.
 Sampler defaults are Kimodo's own: duration 5, steps 100, cfg 2.0, transition frames 5, post-processing on.
@@ -29,7 +29,7 @@ process, so nothing gets installed into ComfyUI's Python.
 ## 2. Install the nodes
 
 1. Copy this `ComfyUI-Kimodo` folder into `ComfyUI/custom_nodes/`
-   (or `git clone` this repo and copy/symlink `comfyui/Kimodo` as `ComfyUI-Kimodo`).
+   (or `git clone` this repo and copy/symlink `comfyui/ComfyUI-Kimodo`).
 2. Copy `kimodo_config.example.json` to `kimodo_config.json` in the same folder and set:
    - `kimodo_repo`: the Kimodo checkout, i.e. the folder that contains the `kimodo` package folder.
    - `python`: the Python of the venv you installed Kimodo into
@@ -40,23 +40,6 @@ process, so nothing gets installed into ComfyUI's Python.
 4. Drag `example_workflows/kimodo_text_to_bvh.json` onto the canvas.
 
 If the path is wrong or missing, the Load Model node fails with a message saying what to set.
-
-## FBX export (optional, needs Maya)
-
-Turn on `fbx` on Kimodo Save BVH to also get `motion_00001.fbx` next to the `.bvh` (the BVH is always saved).
-It runs Maya in the background with `mayapy` (no Maya window opens), so it needs Maya installed and licensed:
-
-1. Add Maya's mayapy to `kimodo_config.json`, e.g.
-   `"mayapy": "C:/Program Files/Autodesk/Maya2025/bin/mayapy.exe"` (or set `KIMODO_MAYAPY`).
-2. Save BVH imports the BVH with the Maya BVH import script from this repo
-   (`maya_bvh_import.py`, a copy of [`Maya/BVH Conversion`](../../Maya/BVH%20Conversion)) using the
-   same settings as its Import button, including its T-pose solve, then exports the joints with Maya's FBX plug-in
-   (baked animation, Y up, centimetres).
-3. To use a different version of that script, set `"maya_bvh_script"` in `kimodo_config.json` to its path.
-
-The first conversion takes a little while because Maya has to start. Maya's output appears in the
-ComfyUI console as `[Kimodo FBX]` lines, and the node shows the last lines if the export fails.
-The same script still opens its window when run inside Maya.
 
 ## Backends (on Load Model)
 - `kimodo_venv` (default): runs Kimodo in the configured Python and keeps the model loaded between runs.

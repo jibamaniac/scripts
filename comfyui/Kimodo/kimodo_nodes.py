@@ -12,9 +12,6 @@ Two backends (picked on the loader):
 
 Where Kimodo lives is read from the KIMODO_REPO / KIMODO_PYTHON environment
 variables, or from kimodo_config.json next to this file (see README.md).
-
-Save BVH can also write an FBX by running Maya headless (mayapy) with
-maya_bvh_to_fbx.py; that needs Maya installed and "mayapy" set in the config.
 """
 import collections
 import json
@@ -32,9 +29,7 @@ from . import kimodo_runner
 from .hand_pose import HAND_POSES, apply_hand_pose
 
 RUNNER_PATH = os.path.abspath(kimodo_runner.__file__)
-HERE = os.path.dirname(RUNNER_PATH)
-CONFIG_PATH = os.path.join(HERE, "kimodo_config.json")
-FBX_SCRIPT = os.path.join(HERE, "maya_bvh_to_fbx.py")
+CONFIG_PATH = os.path.join(os.path.dirname(RUNNER_PATH), "kimodo_config.json")
 
 
 def _venv_python(folder):
@@ -46,13 +41,6 @@ def _venv_python(folder):
     return None
 
 
-def _load_config():
-    if not os.path.isfile(CONFIG_PATH):
-        return {}
-    with open(CONFIG_PATH, encoding="utf-8") as f:
-        return json.load(f)
-
-
 def kimodo_paths():
     """Return (repo, python): the Kimodo checkout (the folder that contains the
     `kimodo` package) and the Python interpreter that has Kimodo installed.
@@ -60,7 +48,10 @@ def kimodo_paths():
     Env vars KIMODO_REPO / KIMODO_PYTHON win over kimodo_config.json. If no
     python is given, a venv/ or .venv/ in the repo or its parent folder is used.
     """
-    cfg = _load_config()
+    cfg = {}
+    if os.path.isfile(CONFIG_PATH):
+        with open(CONFIG_PATH, encoding="utf-8") as f:
+            cfg = json.load(f)
     repo = os.environ.get("KIMODO_REPO") or cfg.get("kimodo_repo")
     python = os.environ.get("KIMODO_PYTHON") or cfg.get("python")
     if not repo:
@@ -77,54 +68,6 @@ def kimodo_paths():
         raise RuntimeError(f"Kimodo Python not found ({python!r}). Set \"python\" in kimodo_config.json "
                            "to the python.exe of the venv where Kimodo is installed.")
     return repo, python
-
-
-def maya_paths():
-    """Return (mayapy, importer script) for the FBX export.
-
-    mayapy comes from the KIMODO_MAYAPY env var or "mayapy" in kimodo_config.json.
-    The importer defaults to the bundled maya_bvh_import.py; "maya_bvh_script"
-    in the config can point at another copy of the Maya BVH import script.
-    """
-    cfg = _load_config()
-    mayapy = os.environ.get("KIMODO_MAYAPY") or cfg.get("mayapy")
-    if not mayapy:
-        raise RuntimeError(
-            "FBX export needs Maya. Set \"mayapy\" in kimodo_config.json "
-            f"({CONFIG_PATH}) to Maya's mayapy.exe, e.g. "
-            "C:/Program Files/Autodesk/Maya2025/bin/mayapy.exe, or set KIMODO_MAYAPY.")
-    mayapy = os.path.abspath(os.path.expanduser(mayapy))
-    if not os.path.isfile(mayapy):
-        raise RuntimeError(f"mayapy not found at {mayapy}. Check \"mayapy\" in kimodo_config.json.")
-    script = cfg.get("maya_bvh_script") or os.path.join(HERE, "maya_bvh_import.py")
-    script = os.path.abspath(os.path.expanduser(script))
-    if not os.path.isfile(script):
-        raise RuntimeError(f"Maya BVH import script not found at {script}. Check \"maya_bvh_script\".")
-    return mayapy, script
-
-
-def bvh_to_fbx(bvh_path, fbx_path):
-    """Convert with Maya in the background. Maya's output goes to ComfyUI's console."""
-    mayapy, importer = maya_paths()
-    env = dict(os.environ)
-    for var in ("PYTHONHOME", "PYTHONPATH", "VIRTUAL_ENV"):
-        env.pop(var, None)
-    env["PYTHONUNBUFFERED"] = "1"
-    print(f"[Kimodo] Converting to FBX with {mayapy}", flush=True)
-    proc = subprocess.run(
-        [mayapy, FBX_SCRIPT, "--bvh", bvh_path, "--fbx", fbx_path, "--importer", importer],
-        env=env,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
-    )
-    log = proc.stdout.decode("utf-8", errors="replace").splitlines()
-    for line in log:
-        print(f"[Kimodo FBX] {line}", flush=True)
-    if proc.returncode != 0 or not os.path.isfile(fbx_path):
-        raise RuntimeError(f"Maya FBX export failed (exit code {proc.returncode}):\n" + "\n".join(log[-25:]))
-    return fbx_path
-
 
 # BVH export only exists for SOMA skeletons (see kimodo/scripts/generate.py).
 SOMA_MODELS = [
@@ -310,8 +253,8 @@ class KimodoSaveBVH:
     CATEGORY = "Kimodo"
     FUNCTION = "save"
     OUTPUT_NODE = True
-    RETURN_TYPES = ("STRING", "STRING")
-    RETURN_NAMES = ("bvh_path", "fbx_path")
+    RETURN_TYPES = ("STRING",)
+    RETURN_NAMES = ("bvh_path",)
 
     @classmethod
     def INPUT_TYPES(cls):
@@ -328,15 +271,10 @@ class KimodoSaveBVH:
                     "default": "none",
                     "tooltip": "Kimodo doesn't animate fingers. 'fist' holds both hands closed for the whole clip.",
                 }),
-                "fbx": ("BOOLEAN", {
-                    "default": False,
-                    "tooltip": "Also write an .fbx next to the .bvh by importing it in Maya (headless). "
-                               "Needs Maya and \"mayapy\" in kimodo_config.json.",
-                }),
             }
         }
 
-    def save(self, motion, filename_prefix, standard_tpose, save_npz, hand_pose="none", fbx=False):
+    def save(self, motion, filename_prefix, standard_tpose, save_npz, hand_pose="none"):
         stem = _next_output_stem(filename_prefix)
         result = _call(
             motion["backend"], "export_bvh",
@@ -350,14 +288,9 @@ class KimodoSaveBVH:
         if save_npz:
             shutil.copyfile(motion["npz_path"], stem + ".npz")
         bvh_path = result["bvh_path"]
+        summary = f"{os.path.basename(bvh_path)}: {result['frames']} frames @ {motion['fps']:g} fps ({motion['model']})"
         print(f"[Kimodo] Saved {bvh_path}", flush=True)
-        fbx_path = ""
-        if fbx:
-            fbx_path = bvh_to_fbx(bvh_path, stem + ".fbx")
-            print(f"[Kimodo] Saved {fbx_path}", flush=True)
-        names = os.path.basename(bvh_path) + (f" + {os.path.basename(fbx_path)}" if fbx_path else "")
-        summary = f"{names}: {result['frames']} frames @ {motion['fps']:g} fps ({motion['model']})"
-        return {"ui": {"text": [summary]}, "result": (bvh_path, fbx_path)}
+        return {"ui": {"text": [summary]}, "result": (bvh_path,)}
 
 
 NODE_CLASS_MAPPINGS = {
