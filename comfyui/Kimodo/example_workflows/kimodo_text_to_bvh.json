@@ -126,7 +126,7 @@
       ],
       "size": [
         320,
-        150
+        175
       ],
       "flags": {},
       "order": 3,
@@ -143,6 +143,11 @@
           "name": "bvh_path",
           "type": "STRING",
           "links": null
+        },
+        {
+          "name": "fbx_path",
+          "type": "STRING",
+          "links": null
         }
       ],
       "properties": {
@@ -152,7 +157,8 @@
         "kimodo/motion",
         false,
         false,
-        "none"
+        "none",
+        false
       ]
     }
   ],
