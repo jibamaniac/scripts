@@ -151,7 +151,8 @@
       "widgets_values": [
         "kimodo/motion",
         false,
-        false
+        false,
+        "none"
       ]
     }
   ],
