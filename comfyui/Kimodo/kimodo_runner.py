@@ -79,11 +79,81 @@ def load(model_name):
     return {"model": resolved, "fps": float(model.fps)}
 
 
+def _root_keyframe_class():
+    """Root2DConstraintSet that can also pin the pelvis height (Kimodo's root_y_pos
+    feature) on its frames. Kimodo's own root2d set only pins x/z and heading."""
+    from kimodo.constraints import Root2DConstraintSet
+
+    class RootKeyframeSet(Root2DConstraintSet):
+        def __init__(self, skeleton, frame_indices, smooth_root_2d, global_root_heading=None, root_y=None):
+            super().__init__(skeleton, frame_indices, smooth_root_2d, global_root_heading=global_root_heading)
+            self.root_y = root_y
+
+        def update_constraints(self, data_dict, index_dict):
+            super().update_constraints(data_dict, index_dict)
+            if self.root_y is not None:
+                data_dict["root_y_pos"].append(self.root_y)
+                index_dict["root_y_pos"].append(self.frame_indices)
+
+        def crop_move(self, start, end):
+            mask = (self.frame_indices >= start) & (self.frame_indices < end)
+            return RootKeyframeSet(
+                self.skeleton,
+                self.frame_indices[mask] - start,
+                self.smooth_root_2d[mask],
+                global_root_heading=None if self.global_root_heading is None else self.global_root_heading[mask],
+                root_y=None if self.root_y is None else self.root_y[mask],
+            )
+
+        def to(self, device=None, dtype=None):
+            super().to(device=device, dtype=dtype)
+            if self.root_y is not None:
+                self.root_y = self.root_y.to(device=device or self.root_y.device, dtype=dtype or self.root_y.dtype)
+            return self
+
+    return RootKeyframeSet
+
+
+def build_constraints(model, keyframes, total_frames):
+    """Turn root keyframes into Kimodo constraint sets.
+
+    Each keyframe is {"time": s, "x": m, "z": m, "heading_deg": opt, "hip_height": opt}
+    in Kimodo's world space: metres, Y up, the character starts at the origin
+    facing +Z, heading 90 faces +X.
+    """
+    import math
+
+    import torch
+
+    RootKeyframeSet = _root_keyframe_class()
+    device = model.device
+    constraints = []
+    for k in keyframes:
+        frame = int(round(float(k["time"]) * model.fps))
+        if not 0 <= frame < total_frames:
+            raise ValueError(f"Keyframe at {k['time']} s is outside the motion (0 to {total_frames / model.fps:.2f} s).")
+        heading = None
+        if k.get("heading_deg") is not None:
+            a = math.radians(float(k["heading_deg"]))
+            heading = torch.tensor([[math.cos(a), math.sin(a)]], device=device)
+        root_y = None
+        if k.get("hip_height") is not None:
+            root_y = torch.tensor([float(k["hip_height"])], device=device)
+        constraints.append(RootKeyframeSet(
+            model.skeleton,
+            torch.tensor([frame], device=device),
+            torch.tensor([[float(k["x"]), float(k["z"])]], device=device),
+            global_root_heading=heading,
+            root_y=root_y,
+        ))
+    return constraints
+
+
 def sample(model_name, segments, out_npz, seed=0, diffusion_steps=100, cfg=2.0,
-           num_transition_frames=5, post_processing=True, keep_model_loaded=True):
-    """Run the diffusion model on a list of {"text", "duration"} segments (played
-    back to back, like the CLI's period-separated prompts) and save the motion
-    as a Kimodo NPZ."""
+           num_transition_frames=5, post_processing=True, keep_model_loaded=True, keyframes=None):
+    """Run the diffusion model on a list of {"text", "duration", "seed"?} segments
+    (played back to back, like the CLI's period-separated prompts), optionally
+    constrained by root keyframes, and save the motion as a Kimodo NPZ."""
     from kimodo.exports.motion_io import save_kimodo_npz
     from kimodo.tools import seed_everything
 
@@ -93,17 +163,22 @@ def sample(model_name, segments, out_npz, seed=0, diffusion_steps=100, cfg=2.0,
         num_frames = [int(float(s["duration"]) * model.fps) for s in segments]
         if not texts:
             raise ValueError("Prompt is empty.")
+        # Segments with their own seed reseed before they generate, so changing one
+        # leaves the segments before it alone. The rest continue from `seed`.
+        seeds = [None if s.get("seed") is None else int(s["seed"]) for s in segments]
+        constraint_lst = build_constraints(model, keyframes or [], sum(num_frames))
         seed_everything(int(seed))
         output = model(
             texts,
             num_frames,
-            constraint_lst=[],
+            constraint_lst=constraint_lst,
+            seeds=seeds,
             num_denoising_steps=int(diffusion_steps),
             num_samples=1,
             multi_prompt=True,
             num_transition_frames=int(num_transition_frames),
             post_processing=bool(post_processing),
-            cfg_weight=[float(cfg), 2.0],  # [text, constraint]; no constraints here
+            cfg_weight=[float(cfg), 2.0],  # [text, constraint]
             return_numpy=True,
         )
         single = {
