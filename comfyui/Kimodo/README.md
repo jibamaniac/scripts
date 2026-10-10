@@ -7,7 +7,7 @@ ComfyUI nodes that turn a text prompt into a `.bvh` motion file with
 |---|---|---|
 | Kimodo Load Model | Load Checkpoint | Picks the SOMA model and backend, loads it once |
 | Kimodo Sampler | KSampler | Takes the prompt from any text node (e.g. core `Text (Multiline)`); seconds per sentence, seed, steps, cfg, transition frames, foot-skate cleanup |
-| Kimodo Save BVH | Save Image | Writes `ComfyUI/output/kimodo/motion_00001.bvh` (+ optional .npz) in an A-pose rest stance; `hand_pose = fist` closes both hands |
+| Kimodo Save BVH | Save Image | Writes `ComfyUI/output/kimodo/motion_00001.bvh` (+ optional .npz); `hand_pose = fist` closes both hands |
 
 Sentences separated by `.` play back to back, each `duration` seconds long.
 Sampler defaults are Kimodo's own: duration 5, steps 100, cfg 2.0, transition frames 5, post-processing on.
