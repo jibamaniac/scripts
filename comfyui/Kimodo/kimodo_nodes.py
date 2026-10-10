@@ -27,6 +27,7 @@ import folder_paths
 
 from . import kimodo_runner
 from .hand_pose import HAND_POSES, apply_hand_pose
+from .rest_pose import DEFAULT_APOSE_ANGLE, REST_POSES, apply_rest_pose
 
 RUNNER_PATH = os.path.abspath(kimodo_runner.__file__)
 CONFIG_PATH = os.path.join(os.path.dirname(RUNNER_PATH), "kimodo_config.json")
@@ -271,10 +272,23 @@ class KimodoSaveBVH:
                     "default": "none",
                     "tooltip": "Kimodo doesn't animate fingers. 'fist' holds both hands closed for the whole clip.",
                 }),
-            }
+            },
+            "optional": {
+                "rest_pose": (REST_POSES, {
+                    "default": "A-pose",
+                    "tooltip": "What zero rotation means in the BVH. A-pose / T-pose bake the stance the Maya "
+                               "importer used to build, so it imports ready for HumanIK. 'kimodo' keeps Kimodo's own "
+                               "rest pose. The motion is the same either way.",
+                }),
+                "apose_angle": ("FLOAT", {
+                    "default": DEFAULT_APOSE_ANGLE, "min": 0.0, "max": 90.0, "step": 0.5,
+                    "tooltip": "A-pose only: how far below horizontal the arms sit, in degrees.",
+                }),
+            },
         }
 
-    def save(self, motion, filename_prefix, standard_tpose, save_npz, hand_pose="none"):
+    def save(self, motion, filename_prefix, standard_tpose, save_npz, hand_pose="none",
+             rest_pose="A-pose", apose_angle=DEFAULT_APOSE_ANGLE):
         stem = _next_output_stem(filename_prefix)
         result = _call(
             motion["backend"], "export_bvh",
@@ -284,7 +298,8 @@ class KimodoSaveBVH:
             fps=motion["fps"],
             standard_tpose=standard_tpose,
         )
-        apply_hand_pose(result["bvh_path"], hand_pose)
+        apply_hand_pose(result["bvh_path"], hand_pose)  # before the rest pose: it writes Kimodo-rest values
+        apply_rest_pose(result["bvh_path"], rest_pose, apose_angle)
         if save_npz:
             shutil.copyfile(motion["npz_path"], stem + ".npz")
         bvh_path = result["bvh_path"]

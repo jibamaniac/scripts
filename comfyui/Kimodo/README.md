@@ -55,5 +55,17 @@ If the path is wrong or missing, the Load Model node fails with a message saying
 - BVH export only exists for SOMA models, so the model list is SOMA only.
 - Kimodo doesn't animate fingers; they stay in a relaxed rest pose. `hand_pose = fist` on Save BVH
   writes a constant closed fist into the finger channels (everything else is unchanged).
-- `standard_tpose` off gives the same rest pose as Kimodo's native BVH export (BONES-SEED rest pose).
+- `rest_pose` on Save BVH sets what zero rotation means in the file:
+  - `A-pose` (default): spine up, legs down, feet forward, arms out and lowered by `apose_angle` (29 degrees).
+  - `T-pose`: the same with the arms horizontal.
+  - `kimodo`: Kimodo's own rest pose, as before (every bone along its local X, so it is a tangle at zero).
+
+  A-pose and T-pose are the stance the Maya importer (`Maya/BVH Conversion`) used to build with its T-pose solve,
+  the foot and thumb extra rolls, the 180 degree right-arm roll and the arm lowering, so the BVH imports
+  ready for a HumanIK definition with all rotations at zero. The motion is unchanged (same world joint positions on
+  every frame). BVH has no joint-orient field, so each joint's local axes line up with the world axes in the rest
+  stance instead of carrying the solved orientation as a jointOrient. The extra rolls live in
+  `JOINT_EXTRA_Z` / `JOINT_EXTRA_Y` at the top of `rest_pose.py`.
+- `standard_tpose` picks which Kimodo rest the motion is written against first; with `rest_pose = kimodo`, off gives
+  the same file as Kimodo's native BVH export (BONES-SEED rest pose).
 - The motion is held as a temp .npz in `ComfyUI/temp/kimodo` until Save BVH converts it.
